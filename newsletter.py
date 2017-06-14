@@ -2,10 +2,21 @@
 # encoding: UTF-8
 from __future__ import print_function
 import argparse
-import feedparser
-import datetime
+# import datetime
 import sys
+import time
+from utils import pip_install
+# Install dependencies if required
+# try:
+import feedparser
+import requests
 from html2text import html2text
+from bs4 import BeautifulSoup
+# except ImportError:
+#     pip_install("feedparser", "requests", "html2text", "beautifulsoup4")
+#     print("Software installed, restart program. Exiting in 5 seconds.")
+#     time.sleep(5)
+#     exit(0)
 
 
 def get_arguments():
@@ -19,6 +30,12 @@ def get_plaintext(html):
     return html2text(html).strip()
 
 
+def print_title(title):
+    print("----------------------------------------------------------------------")
+    print(title)
+    print("----------------------------------------------------------------------")
+
+
 def fetch_feeds():
     #     today = datetime.date.today()
     #     first = today.replace(day=1)
@@ -28,7 +45,7 @@ def fetch_feeds():
             #             "http://www.idunn.no/tools/rss?tidsskrift=ip", # ended 2015?
             "http://www.idunn.no/tools/rss?tidsskrift=jv",
             "http://www.idunn.no/tools/rss?tidsskrift=lor",
-            "https://www.idunn.no/tools/rss?tidsskrift=nd&marketplaceId=2000",
+            #             "https://www.idunn.no/tools/rss?tidsskrift=nd&marketplaceId=2000",
             "http://www.idunn.no/tools/rss?tidsskrift=skatt",
             "http://www.idunn.no/tools/rss?tidsskrift=stat",
             "http://www.idunn.no/tools/rss?tidsskrift=tfr",
@@ -46,9 +63,7 @@ def fetch_feeds():
     for feed in feeds:
         #         print(feed["channel"]["title"])
         for item in feed["items"][:1]:
-            print("----------------------------------------------------------------------")
-            print(item["title"])
-            print("----------------------------------------------------------------------")
+            print_title(item["title"])
 #             print(item["date"])
 #             print(item["date_parsed"])
             print(get_plaintext(item["summary"]))
@@ -56,7 +71,29 @@ def fetch_feeds():
             print(item["link"], "\n")
 
 
+def fetch_norart():
+    URLs = [
+        #         "http://www.nb.no/baser/norart/trip.php?_b=norart&issn-ntid=1399-140X",
+        "http://www.nb.no/baser/norart/trip.php?_b=norart&issn-ntid=0105-1121",
+    ]
+
+    for URL in URLs:
+        page = requests.get(URL)
+        soup = BeautifulSoup(page.text, "lxml")
+        items = soup.findAll('tr', {"class": "zebra"})
+        formatted = [[data.text.replace("\xa0", " ").strip()
+                      for data in item.find_all('td')[1:4]] for item in items]
+        # find title  of the last issue
+        last_issue = formatted[0][2]
+        print_title(last_issue)
+        for item in formatted:
+            if item[2] == last_issue:
+                print("%s (%s)" % (item[0], item[1]))
+        print()
+
+
 def fetch_all():
+    fetch_norart()
     fetch_feeds()
 
 
