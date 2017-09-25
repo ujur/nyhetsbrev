@@ -19,6 +19,15 @@ from bs4 import BeautifulSoup
 #     exit(0)
 
 
+def output(*args):
+    """
+    Helper method to correctly format output.
+    some mail readers, like outlook, strips line feeds  from text.
+    to avoid this, we insert a space on the end of every line
+    """
+    print(*args, " ")
+
+
 def get_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument("-v", "--verbose", help="verbose output", action="store_true")
@@ -31,9 +40,9 @@ def get_plaintext(html):
 
 
 def print_title(title):
-    print("----------------------------------------------------------------------")
-    print(title)
-    print("----------------------------------------------------------------------")
+    output("----------------------------------------------------------------------")
+    output(title)
+    output("----------------------------------------------------------------------")
 
 
 def fetch_feeds():
@@ -57,18 +66,19 @@ def fetch_feeds():
             "https://www.idunn.no/tools/rss?tidsskrift=tidsskrift_for_erstatningsrett_forsikringsrett_og_trygderett&marketplaceId=2000",
             "https://www.idunn.no/tools/rss?tidsskrift=oslo_law_review&marketplaceId=2000",
             "http://ejil.oxfordjournals.org/rss/current.xml",
+            #             "http://www.tandfonline.com/action/showFeed?type=etoc&feed=rss&jc=rnhr20",
             ]
     feeds = [feedparser.parse(URL) for URL in URLs]
 #     print(feeds)
     for feed in feeds:
-        #         print(feed["channel"]["title"])
+        #         output(feed["channel"]["title"])
         for item in feed["items"][:1]:
             print_title(item["title"])
-#             print(item["date"])
-#             print(item["date_parsed"])
-            print(get_plaintext(item["summary"]))
-#             print(item["summary"])
-            print(item["link"], "\n")
+#             output(item["date"])
+#             output(item["date_parsed"])
+            output(get_plaintext(item["summary"]))
+#             output(item["summary"])
+            output(item["link"], "\n")
 
 
 def fetch_norart():
@@ -88,8 +98,8 @@ def fetch_norart():
         print_title(last_issue)
         for item in formatted:
             if item[2] == last_issue:
-                print("%s (%s)" % (item[0], item[1]))
-        print()
+                output("%s (%s)" % (item[0], item[1]))
+        output()
 
 
 def fetch_all():
