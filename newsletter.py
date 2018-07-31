@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # encoding: UTF-8
 from __future__ import print_function
+import json
 import argparse
 # import datetime
 import sys
@@ -11,6 +12,7 @@ from utils import pip_install
 import feedparser
 import requests
 from html2text import html2text
+from yattag import Doc, indent
 from bs4 import BeautifulSoup
 # except ImportError:
 #     pip_install("feedparser", "requests", "html2text", "beautifulsoup4")
@@ -25,7 +27,7 @@ def output(*args):
     some mail readers, like outlook, strips line feeds  from text.
     to avoid this, we insert a space on the end of every line
     """
-    print(*args, " ")
+#     print(*args, " ")
 
 
 def get_arguments():
@@ -40,9 +42,10 @@ def get_plaintext(html):
 
 
 def print_title(title):
-    output("----------------------------------------------------------------------")
+    #     output("---------------------------------------")
     output(title)
-    output("----------------------------------------------------------------------")
+#     output("*" + title + "*")
+    output("---------------------------------------")
 
 
 def fetch_feeds():
@@ -71,7 +74,7 @@ def fetch_feeds():
     feeds = [feedparser.parse(URL) for URL in URLs]
 #     print(feeds)
     for feed in feeds:
-        #         output(feed["channel"]["title"])
+        # output(feed["channel"]["title"])
         for item in feed["items"][:1]:
             print_title(item["title"])
 #             output(item["date"])
@@ -102,21 +105,47 @@ def fetch_norart():
         output()
 
 
+def fetch_books(URL="https://ub-tilvekst.uio.no/lists/72.json"):
+    """
+    Fetch books from UB tilvekst
+    """
+    response = requests.get(URL)
+    books = json.loads(response.text)
+
+    for book in books:
+        with tag("a", href=book["primo_link"]):
+            text(book["title"])
+        doc.stag("br")
+        if book["author"]:
+            text(book["author"])
+            doc.stag("br")
+        edition = book["edition"] if book["edition"] else "1. utg."
+        text(edition, " ")
+        if book["publication_date"]:
+            text(book["publication_date"])
+        doc.stag("br")
+        doc.stag("br")
+
+
 def fetch_all():
-    fetch_norart()
-    fetch_feeds()
-
-
-def main():
-    options = get_arguments()
-    if options.out:
-        with open(options.out, "w") as outFile:
-            sys.stdout, temp = outFile, sys.stdout
-            fetch_all()
-            sys.stdout = temp
-    else:
-        fetch_all()
+    #     fetch_feeds()
+    #     fetch_norart()
+    fetch_books()
 
 
 if __name__ == '__main__':
-    main()
+    options = get_arguments()
+    doc, tag, text = Doc().tagtext()
+    with tag('html'):
+        with tag('head'):
+            doc.stag('meta', charset='utf-8')
+        with tag('body'):
+            fetch_all()
+
+    result = indent(doc.getvalue())
+
+    if options.out:
+        with open(options.out, "w") as outFile:
+            print(result, file=outFile)
+    else:
+        print(result)
