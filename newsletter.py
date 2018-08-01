@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # encoding: UTF-8
 from __future__ import print_function
+from __future__ import division
+from __future__ import unicode_literals
 import json
 import argparse
 # import datetime
@@ -21,15 +23,6 @@ from bs4 import BeautifulSoup
 #     exit(0)
 
 
-def output(*args):
-    """
-    Helper method to correctly format output.
-    some mail readers, like outlook, strips line feeds  from text.
-    to avoid this, we insert a space on the end of every line
-    """
-#     print(*args, " ")
-
-
 def get_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument("-v", "--verbose", help="verbose output", action="store_true")
@@ -39,13 +32,6 @@ def get_arguments():
 
 def get_plaintext(html):
     return html2text(html).strip()
-
-
-def print_title(title):
-    #     output("---------------------------------------")
-    output(title)
-#     output("*" + title + "*")
-    output("---------------------------------------")
 
 
 def fetch_feeds():
@@ -68,20 +54,20 @@ def fetch_feeds():
             "https://www.idunn.no/tools/rss?tidsskrift=tidsskrift_for_strafferett",
             "https://www.idunn.no/tools/rss?tidsskrift=tidsskrift_for_erstatningsrett_forsikringsrett_og_trygderett&marketplaceId=2000",
             "https://www.idunn.no/tools/rss?tidsskrift=oslo_law_review&marketplaceId=2000",
-            "http://ejil.oxfordjournals.org/rss/current.xml",
+            #             "http://ejil.oxfordjournals.org/rss/current.xml",
             #             "http://www.tandfonline.com/action/showFeed?type=etoc&feed=rss&jc=rnhr20",
             ]
     feeds = [feedparser.parse(URL) for URL in URLs]
 #     print(feeds)
     for feed in feeds:
-        # output(feed["channel"]["title"])
+        # print(feed["channel"]["title"])
         for item in feed["items"][:1]:
-            print_title(item["title"])
-#             output(item["date"])
-#             output(item["date_parsed"])
-            output(get_plaintext(item["summary"]))
-#             output(item["summary"])
-            output(item["link"], "\n")
+            heading(item["title"])
+#             print(item["date"])
+#             print(item["date_parsed"])
+            doc.asis(item["summary"])
+#             print(item["summary"])
+            link(item["link"], "Fulltekst")
 
 
 def fetch_norart():
@@ -98,39 +84,97 @@ def fetch_norart():
                       for data in item.find_all('td')[1:4]] for item in items]
         # find title  of the last issue
         last_issue = formatted[0][2]
-        print_title(last_issue)
+        heading(last_issue)
         for item in formatted:
             if item[2] == last_issue:
-                output("%s (%s)" % (item[0], item[1]))
-        output()
+                text("%s (%s)" % (item[0], item[1]))
+                doc.stag("br")
 
 
-def fetch_books(URL="https://ub-tilvekst.uio.no/lists/72.json"):
+def heading(title, level="h2"):
+    """
+    Add heading to the accumulated  HTML
+    """
+    with tag(level):
+        text(title)
+
+
+def link(target, description):
+    "Add link to the accumulated HTML"
+    with tag("a", href=target):
+        text(description)
+
+
+def list_book(book):
+    link(book["primo_link"], book["title"])
+    doc.stag("br")
+    if book["author"]:
+        text(book["author"])
+        doc.stag("br")
+    if book["series"]:
+        text("Serie: ", book["series"])
+        doc.stag("br")
+    # edition = book["edition"] if book["edition"] else "1. utg."
+    if book["edition"]:
+        text(book["edition"], " ")
+    if book["publication_date"]:
+        text(book["publication_date"])
+        doc.stag("br")
+#     if book["receiving_or_activation_date"]:
+#         text("Mottatt: ", book["receiving_or_activation_date"].split()[0])
+#         doc.stag("br")
+    doc.stag("br")
+
+
+def get_number(book):
+    """
+    Get the l-skjema call number of the book
+    """
+    try:
+        return int(float(book["permanent_call_number"].split()[0]))
+#         book["permanent_call_number_type"] == "Other scheme"
+    except ValueError as e:
+        print(book["title"], book["permanent_call_number"])
+#         print(e)
+        return 0
+
+
+def fetch_books(URL="https://ub-tilvekst.uio.no/lists/72.json?days=60"):
     """
     Fetch books from UB tilvekst
     """
+    partitions = [("Rettsvitenskap i alminnelighet", 1, 107),
+                  ("Privatrett", 108, 637),
+                  ("Offentlig rett", 638, 1127),
+                  ("Folkerett", 1129, 1235),
+                  ("Kirkerett", 1236, 1287)]
+
     response = requests.get(URL)
     books = json.loads(response.text)
-
-    for book in books:
-        with tag("a", href=book["primo_link"]):
-            text(book["title"])
-        doc.stag("br")
-        if book["author"]:
-            text(book["author"])
-            doc.stag("br")
-        edition = book["edition"] if book["edition"] else "1. utg."
-        text(edition, " ")
-        if book["publication_date"]:
-            text(book["publication_date"])
-        doc.stag("br")
-        doc.stag("br")
+    # Only list books that are catalogued
+    books = [book for book in books if book["permanent_call_number"]]
+    for partition in partitions:
+        description, start, to = partition
+        current = [book for book in books if start <= get_number(book) <= to]
+        if current:
+            # Remove current partition from books
+            books = [item for item in books if item not in current]
+            heading(description)
+            for book in current:
+                list_book(book)
+    if books:
+        heading("Resten")
+        for book in books:
+            list_book(book)
 
 
 def fetch_all():
-    #     fetch_feeds()
-    #     fetch_norart()
+    #     heading("Nye b&oslash;ker")
+    heading("Nye bøker", level="h1")
     fetch_books()
+    heading("Tidsskrifter", level="h1")
+    fetch_feeds()
+    fetch_norart()
 
 
 if __name__ == '__main__':
@@ -145,7 +189,7 @@ if __name__ == '__main__':
     result = indent(doc.getvalue())
 
     if options.out:
-        with open(options.out, "w") as outFile:
+        with open(options.out, "w", encoding="utf-8") as outFile:
             print(result, file=outFile)
     else:
         print(result)
