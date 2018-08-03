@@ -26,7 +26,7 @@ from bs4 import BeautifulSoup
 def get_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument("-v", "--verbose", help="verbose output", action="store_true")
-    parser.add_argument("-out", help="output file name")
+    parser.add_argument("-out", help="output file name", default="tilvekst.html")
     return parser.parse_args()
 
 
@@ -169,7 +169,6 @@ def fetch_books(URL="https://ub-tilvekst.uio.no/lists/72.json?days=60"):
 
 
 def fetch_all():
-    #     heading("Nye b&oslash;ker")
     heading("Nye bøker", level="h1")
     fetch_books()
     heading("Tidsskrifter", level="h1")
