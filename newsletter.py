@@ -4,6 +4,7 @@ from __future__ import print_function
 from __future__ import division
 from __future__ import unicode_literals
 import json
+from operator import itemgetter, attrgetter, methodcaller
 import argparse
 # import datetime
 import sys
@@ -153,6 +154,8 @@ def fetch_books(URL="https://ub-tilvekst.uio.no/lists/72.json?days=60"):
     books = json.loads(response.text)
     # Only list books that are catalogued
     books = [book for book in books if book["permanent_call_number"] and book["location_name"] != "UJUR Kontor"]
+    # Order by title
+    books = sorted(books, key=itemgetter("title"))
     for partition in partitions:
         description, start, to = partition
         current = [book for book in books if start <= get_number(book) <= to]
