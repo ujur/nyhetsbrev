@@ -163,7 +163,7 @@ def fetch_books(URL="https://ub-tilvekst.uio.no/lists/72.json?days=60"):
             for book in current:
                 list_book(book)
     if books:
-        heading("Resten")
+        heading("Andre fag")
         for book in books:
             list_book(book)
 
