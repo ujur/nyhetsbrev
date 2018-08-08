@@ -152,8 +152,9 @@ def fetch_books(URL="https://ub-tilvekst.uio.no/lists/72.json?days=60"):
 
     response = requests.get(URL)
     books = json.loads(response.text)
+    ignore_collections = ["UJUR Kontor", "UJUR Skranken - Ikke til hjemlån"]
     # Only list books that are catalogued
-    books = [book for book in books if book["permanent_call_number"] and book["location_name"] != "UJUR Kontor"]
+    books = [book for book in books if book["permanent_call_number"] and book["location_name"] not in ignore_collections]
     # Order by title
     books = sorted(books, key=itemgetter("title"))
     for partition in partitions:
