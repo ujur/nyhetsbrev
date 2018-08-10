@@ -11,17 +11,17 @@ import sys
 import time
 from utils import pip_install
 # Install dependencies if required
-# try:
-import feedparser
-import requests
-from html2text import html2text
-from yattag import Doc, indent
-from bs4 import BeautifulSoup
-# except ImportError:
-#     pip_install("feedparser", "requests", "html2text", "beautifulsoup4")
-#     print("Software installed, restart program. Exiting in 5 seconds.")
-#     time.sleep(5)
-#     exit(0)
+try:
+    import feedparser
+    import requests
+    from html2text import html2text
+    from yattag import Doc, indent
+    from bs4 import BeautifulSoup
+except ImportError:
+    pip_install("lxml", "feedparser", "requests", "html2text", "beautifulsoup4", "yattag")
+    print("Software installed, restart program. Exiting in 5 seconds.")
+    time.sleep(5)
+    exit(0)
 
 
 def get_arguments():
