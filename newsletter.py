@@ -28,6 +28,7 @@ def get_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument("-v", "--verbose", help="verbose output", action="store_true")
     parser.add_argument("-out", help="output file name", default="tilvekst.html")
+    parser.add_argument("-days", help="number of days to include", type=int, default="32")
     return parser.parse_args()
 
 
@@ -140,7 +141,7 @@ def get_number(book):
         return 0
 
 
-def fetch_books(URL="https://ub-tilvekst.uio.no/lists/72.json?days=60"):
+def fetch_books(URL):
     """
     Fetch books from UB tilvekst
     """
@@ -174,7 +175,7 @@ def fetch_books(URL="https://ub-tilvekst.uio.no/lists/72.json?days=60"):
 
 def fetch_all():
     heading("Nye bøker", level="h1")
-    fetch_books()
+    fetch_books("https://ub-tilvekst.uio.no/lists/72.json?days=%d" % options.days)
     heading("Tidsskrifter", level="h1")
     fetch_feeds()
     fetch_norart()
