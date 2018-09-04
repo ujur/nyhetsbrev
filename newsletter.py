@@ -145,11 +145,15 @@ def fetch_books(URL):
     """
     Fetch books from UB tilvekst
     """
-    partitions = [("Rettsvitenskap i alminnelighet", 1, 107),
-                  ("Privatrett", 108, 637),
-                  ("Offentlig rett", 638, 1127),
-                  ("Folkerett", 1129, 1235),
-                  ("Kirkerett", 1236, 1287)]
+    partitions = [
+        ("Festskrift", 19, 19),
+        ("Rettsvitenskap i alminnelighet", 1, 107),
+        ("Privatrett", 108, 637),
+        ("Offentlig rett", 638, 1127),
+        ("Menneskerettigheter", 1164, 1164),
+        ("Folkerett", 1129, 1235),
+        ("Kirkerett", 1236, 1287)
+    ]
 
     response = requests.get(URL)
     books = json.loads(response.text)
