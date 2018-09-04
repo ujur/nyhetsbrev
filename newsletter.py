@@ -133,8 +133,7 @@ def get_number(book):
     Get the l-skjema call number of the book
     """
     try:
-        return int(float(book["permanent_call_number"].split()[0]))
-#         book["permanent_call_number_type"] == "Other scheme"
+        return int(float(book["permanent_call_number"].split()[0])) if book["permanent_call_number_type"] != "Dewey Decimal classification" else 0
     except ValueError as e:
         print(book["title"], book["permanent_call_number"])
 #         print(e)
