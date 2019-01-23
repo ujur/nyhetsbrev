@@ -146,7 +146,9 @@ def fetch_books(URL):
     """
     partitions = [
         ("Festskrift", 19, 19),
+        ("Rettsinformatikk", 39 , 39.9),
         ("Rettsvitenskap i alminnelighet", 1, 107),
+        ("Kvinnerett", 152 , 152.9),
         ("Privatrett", 108, 637),
         ("Offentlig rett", 638, 1127),
         ("Menneskerettigheter", 1164, 1164),
