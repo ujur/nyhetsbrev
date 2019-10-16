@@ -186,6 +186,19 @@ def fetch_books(URL):
 
 def fetch_all():
     heading("Nye bøker", level="h1")
+    # Boilerplate intro
+    text("""I dette nyhetsbrevet finner du nye bøker som er anskaffet til et
+        eller flere av bibliotekene ved Juridisk bibliotek. Overskriftene
+        og inndelingen er basert på """)
+    link("http://app.uio.no/ub/ujur/l-skjema/", "L-skjema")
+    text(""", bibliotekets klassifikasjonssystem. En bok kan ha flere emner og
+        klassifikasjoner. Listen under er sortert etter hovedemnet de er
+        stilt opp på i biblioteket.""")
+    doc.stag("br")
+    text("I tillegg finner du nyeste utgaver av en rekke sentrale norske tidsskrift.")
+    doc.stag("br")
+    text("NB husk å  skru på HTML-visning i Outlook. Tilbakemeldinger, endringsforslag m.m. kan sendes til ")
+    link("rjbergst@ub.uio.no", "Rebecca J. Five Bergstrøm")
     fetch_books("https://ub-tilvekst.uio.no/lists/72.json?days=%d" % options.days)
     heading("Tidsskrifter", level="h1")
     fetch_feeds()
