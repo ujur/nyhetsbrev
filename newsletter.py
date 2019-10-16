@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 import json
 from operator import itemgetter, attrgetter, methodcaller
 import argparse
-# import datetime
+import datetime
 import sys
 import time
 from utils import pip_install
@@ -146,9 +146,9 @@ def fetch_books(URL):
     """
     partitions = [
         ("Festskrift", 19, 19),
-        ("Rettsinformatikk", 39 , 39.9),
+        ("Rettsinformatikk", 39, 39.9),
         ("Rettsvitenskap i alminnelighet", 1, 107),
-        ("Kvinnerett", 152 , 152.9),
+        ("Kvinnerett", 152, 152.9),
         ("Privatrett", 108, 637),
         ("Offentlig rett", 638, 1127),
         ("Menneskerettigheter", 1164, 1164),
@@ -156,11 +156,17 @@ def fetch_books(URL):
         ("Kirkerett", 1236, 1287)
     ]
 
+    def include_book(book):
+        return (book["permanent_call_number"]
+                and book["location_name"] not in ignore_collections
+                and book["publication_date"] > current_year - 3)
+
     response = requests.get(URL)
     books = json.loads(response.text)
     ignore_collections = ["UJUR Kontor", "UJUR Skranken - Ikke til hjemlån"]
+    current_year = datetime.datetime.now().year
     # Only list books that are catalogued
-    books = [book for book in books if book["permanent_call_number"] and book["location_name"] not in ignore_collections]
+    books = [book for book in books if include_book(book)]
     # Order by title
     books = sorted(books, key=itemgetter("title"))
     for partition in partitions:
