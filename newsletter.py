@@ -93,7 +93,7 @@ def fetch_norart():
                 doc.stag("br")
 
 
-def heading(title, level="h2"):
+def heading(title, level="h3"):
     """
     Add heading to the accumulated  HTML
     """
@@ -185,6 +185,7 @@ def fetch_books(URL):
 
 
 def fetch_all():
+    heading("Nyhetsbrev fra Juridisk bibliotek", level="h1")
     # Boilerplate intro
     text("""I dette nyhetsbrevet finner du nye bøker som er anskaffet til et
         eller flere av bibliotekene ved Juridisk bibliotek. Overskriftene
@@ -198,9 +199,9 @@ def fetch_all():
     doc.stag("br")
     text("NB husk å  skru på HTML-visning i Outlook. Tilbakemeldinger, endringsforslag m.m. kan sendes til ")
     link("rjbergst@ub.uio.no", "Rebecca J. Five Bergstrøm")
-    heading("Nye bøker", level="h1")
+    heading("Nye bøker", level="h2")
     fetch_books("https://ub-tilvekst.uio.no/lists/72.json?days=%d" % options.days)
-    heading("Tidsskrifter", level="h1")
+    heading("Tidsskrifter", level="h2")
     fetch_feeds()
     fetch_norart()
 
