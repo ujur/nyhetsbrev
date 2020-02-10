@@ -157,10 +157,13 @@ def fetch_books(URL):
     ]
 
     def include_book(book):
-        return (book["permanent_call_number"]
-                and book["location_name"] not in ignore_collections
-                and book["publication_date"]
-                and book["publication_date"] > current_year - 3)
+        try:
+            return (book["permanent_call_number"]
+                    and book["location_name"] not in ignore_collections
+                    and book["publication_date"]
+                    and book["publication_date"] > current_year - 3)
+        except Exception:
+            print(book)
 
     response = requests.get(URL)
     books = json.loads(response.text)
