@@ -160,10 +160,10 @@ def fetch_books(URL):
         try:
             return (book["permanent_call_number"]
                     and book["location_name"] not in ignore_collections
-                    and book["publication_date"]
                     and book["publication_date"] > current_year - 3)
-        except Exception:
-            print(book)
+        except Exception as e:
+            print(e)
+            print("Error for title:", book["title"], "link:", book["self_link"])
 
     response = requests.get(URL)
     books = json.loads(response.text)
