@@ -62,8 +62,10 @@ def fetch_feeds():
     feeds = [feedparser.parse(URL) for URL in URLs]
 #     print(feeds)
     for feed in feeds:
-        # print(feed["channel"]["title"])
-        for item in feed["items"][:1]:
+        print(feed["channel"]["title"])
+        items = feed["items"]
+        items = sorted(items, key=lambda x: x["published"], reverse=True)
+        for item in items[:1]:  # loop in case we wanted to get multiple items, currently only getting one
             heading(item["title"])
 #             print(item["date"])
 #             print(item["date_parsed"])
