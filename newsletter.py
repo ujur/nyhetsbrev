@@ -130,10 +130,17 @@ def list_book(book):
     doc.stag("br")
 
 
+def is_ebook(book):
+    return not book["item_id"]
+
+
 def get_number(book):
     """
     Get the l-skjema call number of the book
     """
+    if is_ebook(book):
+        return 0
+
     try:
         return int(float(book["permanent_call_number"].split()[0])) if book["permanent_call_number_type"] != "Dewey Decimal classification" else 0
     except ValueError as e:
@@ -160,9 +167,9 @@ def fetch_books(URL):
 
     def include_book(book):
         try:
-            return (book["permanent_call_number"]
-                    and book["location_name"] not in ignore_collections
-                    and book["publication_date"] > current_year - 3)
+            return is_ebook(book) or (book["permanent_call_number"]
+                                      and book["location_name"] not in ignore_collections
+                                      and book["publication_date"] > current_year - 3)
         except Exception as e:
             print(e)
             print("Error for title:", book["title"], "link:", book["self_link"])
@@ -205,8 +212,12 @@ def fetch_all():
     doc.stag("br")
     text("NB husk å  skru på HTML-visning i Outlook. Tilbakemeldinger, endringsforslag m.m. kan sendes til ")
     link("rjbergst@ub.uio.no", "Rebecca J. Five Bergstrøm")
-    heading("Nye bøker", level="h2")
+
+    heading("Nye e-bøker", level="h2")
     fetch_books("https://ub-tilvekst.uio.no/lists/72.json?days=%d" % options.days)
+
+    heading("Nye trykte bøker", level="h2")
+    fetch_books("https://ub-tilvekst.uio.no/lists/68.json?days=%d" % options.days)
     heading("Tidsskrifter", level="h2")
     fetch_feeds()
     fetch_norart()
