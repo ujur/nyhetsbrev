@@ -36,42 +36,54 @@ def get_plaintext(html):
     return html2text(html).strip()
 
 
-def fetch_feeds():
+def fetch_feeds(URLs=["http://www.idunn.no/tools/rss?tidsskrift=arbeid",
+                      #             "http://www.idunn.no/tools/rss?tidsskrift=ip", # ended 2015?
+                      "http://www.idunn.no/tools/rss?tidsskrift=jv",
+                      "http://www.idunn.no/tools/rss?tidsskrift=lor",
+                      #             "https://www.idunn.no/tools/rss?tidsskrift=nd&marketplaceId=2000",
+                      "http://www.idunn.no/tools/rss?tidsskrift=skatt",
+                      "http://www.idunn.no/tools/rss?tidsskrift=stat",
+                      "http://www.idunn.no/tools/rss?tidsskrift=tfr",
+                      "https://www.idunn.no/tools/rss?tidsskrift=kritisk_juss&marketplaceId=2000",
+                      "https://www.idunn.no/tools/rss?tidsskrift=tidsskrift_for_eiendomsrett&marketplaceId=2000",
+                      "https://www.idunn.no/tools/rss?tidsskrift=tidsskrift_for_familierett_arverett_og_barnevernrettslige_sp&marketplaceId=2000",
+                      "https://www.idunn.no/tools/rss?tidsskrift=tidsskrift_for_forretningsjus&marketplaceId=2000",
+                      "https://www.idunn.no/tools/rss?tidsskrift=tidsskrift_for_strafferett",
+                      "https://www.idunn.no/tools/rss?tidsskrift=tidsskrift_for_erstatningsrett_forsikringsrett_og_trygderett&marketplaceId=2000",
+                      "https://www.idunn.no/tools/rss?tidsskrift=oslo_law_review&marketplaceId=2000",
+                      #             "http://ejil.oxfordjournals.org/rss/current.xml",
+                      #             "http://www.tandfonline.com/action/showFeed?type=etoc&feed=rss&jc=rnhr20",
+                      ],
+                item_count=1,
+                filter_title=None):
     #     today = datetime.date.today()
     #     first = today.replace(day=1)
     #     lastMonth = first - datetime.timedelta(days=32)
     #     print(lastMonth.strftime("%Y%m%d"))
-    URLs = ["http://www.idunn.no/tools/rss?tidsskrift=arbeid",
-            #             "http://www.idunn.no/tools/rss?tidsskrift=ip", # ended 2015?
-            "http://www.idunn.no/tools/rss?tidsskrift=jv",
-            "http://www.idunn.no/tools/rss?tidsskrift=lor",
-            #             "https://www.idunn.no/tools/rss?tidsskrift=nd&marketplaceId=2000",
-            "http://www.idunn.no/tools/rss?tidsskrift=skatt",
-            "http://www.idunn.no/tools/rss?tidsskrift=stat",
-            "http://www.idunn.no/tools/rss?tidsskrift=tfr",
-            "https://www.idunn.no/tools/rss?tidsskrift=kritisk_juss&marketplaceId=2000",
-            "https://www.idunn.no/tools/rss?tidsskrift=tidsskrift_for_eiendomsrett&marketplaceId=2000",
-            "https://www.idunn.no/tools/rss?tidsskrift=tidsskrift_for_familierett_arverett_og_barnevernrettslige_sp&marketplaceId=2000",
-            "https://www.idunn.no/tools/rss?tidsskrift=tidsskrift_for_forretningsjus&marketplaceId=2000",
-            "https://www.idunn.no/tools/rss?tidsskrift=tidsskrift_for_strafferett",
-            "https://www.idunn.no/tools/rss?tidsskrift=tidsskrift_for_erstatningsrett_forsikringsrett_og_trygderett&marketplaceId=2000",
-            "https://www.idunn.no/tools/rss?tidsskrift=oslo_law_review&marketplaceId=2000",
-            #             "http://ejil.oxfordjournals.org/rss/current.xml",
-            #             "http://www.tandfonline.com/action/showFeed?type=etoc&feed=rss&jc=rnhr20",
-            ]
     feeds = [feedparser.parse(URL) for URL in URLs]
 #     print(feeds)
     for feed in feeds:
-        print(feed["channel"]["title"])
+        print(feed["channel"]["title"])  # to console, for debugging
         items = feed["items"]
-        items = sorted(items, key=lambda x: x["published"], reverse=True)
-        for item in items[:1]:  # loop in case we wanted to get multiple items, currently only getting one
+        if filter_title:
+            items = [item for item in items if filter_title in item["title"]]
+
+        # display channel title if we list more than one item
+        if len(items) > 0 and item_count > 1:
+            heading(feed["channel"]["title"], level='h2')
+        # sort items
+        if len(items) > 1:
+            if 'published' in items[0]:
+                items = sorted(items, key=lambda x: x["published"], reverse=True)
+        for item in items[:item_count]:
             heading(item["title"])
 #             print(item["date"])
 #             print(item["date_parsed"])
-            doc.asis(item["summary"])
+            if "summary" in item:
+                doc.asis(item["summary"])
 #             print(item["summary"])
-            link(item["link"], "Fulltekst")
+            with tag('p'):
+                link(item["link"], "Fulltekst")
 
 
 def fetch_norart():
@@ -192,7 +204,7 @@ def fetch_books(URL):
             for book in current:
                 list_book(book)
     if books:
-        heading("Andre fag")
+        heading("Alle fag")
         for book in books:
             list_book(book)
 
@@ -215,12 +227,16 @@ def fetch_all():
 
     heading("Nye e-bøker", level="h2")
     fetch_books("https://ub-tilvekst.uio.no/lists/72.json?days=%d" % options.days)
+    heading("Nye e-bøker fra Cambridge", level="h2")
+    fetch_feeds(["https://www.cambridge.org/core/rss/subject/id/7C9FB6788DD8D7E6696263BC774F4D5B"], item_count=-1, filter_title='[Book]')
 
     heading("Nye trykte bøker", level="h2")
     fetch_books("https://ub-tilvekst.uio.no/lists/68.json?days=%d" % options.days)
+
     heading("Tidsskrifter", level="h2")
     fetch_feeds()
     fetch_norart()
+    fetch_feeds(["https://www.cambridge.org/core/rss/subject/id/7C9FB6788DD8D7E6696263BC774F4D5B"], item_count=10, filter_title='[Article]')
 
 
 if __name__ == '__main__':
