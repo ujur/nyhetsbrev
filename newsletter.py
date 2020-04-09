@@ -18,7 +18,7 @@ try:
     from yattag import Doc, indent
     from bs4 import BeautifulSoup
 except ImportError:
-    pip_install("lxml", "feedparser", "requests", "html2text", "beautifulsoup4", "yattag")
+    pip_install("lxml", "feedparser", "requests", "html2text", "beautifulsoup4", "yattag==1.12.0")
     print("Software installed, restart program. Exiting in 5 seconds.")
     time.sleep(5)
     exit(0)
