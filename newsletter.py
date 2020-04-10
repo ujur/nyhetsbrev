@@ -3,6 +3,10 @@
 from __future__ import print_function
 from __future__ import division
 from __future__ import unicode_literals
+"""
+Script for making lists of newly acquired books and articles
+"""
+
 import json
 from operator import itemgetter, attrgetter, methodcaller
 import argparse
@@ -36,26 +40,38 @@ def get_plaintext(html):
     return html2text(html).strip()
 
 
-def fetch_feeds(URLs=["http://www.idunn.no/tools/rss?tidsskrift=arbeid",
-                      #             "http://www.idunn.no/tools/rss?tidsskrift=ip", # ended 2015?
-                      "http://www.idunn.no/tools/rss?tidsskrift=jv",
-                      "http://www.idunn.no/tools/rss?tidsskrift=lor",
-                      #             "https://www.idunn.no/tools/rss?tidsskrift=nd&marketplaceId=2000",
-                      "http://www.idunn.no/tools/rss?tidsskrift=skatt",
-                      "http://www.idunn.no/tools/rss?tidsskrift=stat",
-                      "http://www.idunn.no/tools/rss?tidsskrift=tfr",
-                      "https://www.idunn.no/tools/rss?tidsskrift=kritisk_juss&marketplaceId=2000",
-                      "https://www.idunn.no/tools/rss?tidsskrift=tidsskrift_for_eiendomsrett&marketplaceId=2000",
-                      "https://www.idunn.no/tools/rss?tidsskrift=tidsskrift_for_familierett_arverett_og_barnevernrettslige_sp&marketplaceId=2000",
-                      "https://www.idunn.no/tools/rss?tidsskrift=tidsskrift_for_forretningsjus&marketplaceId=2000",
-                      "https://www.idunn.no/tools/rss?tidsskrift=tidsskrift_for_strafferett",
-                      "https://www.idunn.no/tools/rss?tidsskrift=tidsskrift_for_erstatningsrett_forsikringsrett_og_trygderett&marketplaceId=2000",
-                      "https://www.idunn.no/tools/rss?tidsskrift=oslo_law_review&marketplaceId=2000",
-                      #             "http://ejil.oxfordjournals.org/rss/current.xml",
-                      #             "http://www.tandfonline.com/action/showFeed?type=etoc&feed=rss&jc=rnhr20",
-                      ],
+idunn_URLs = ["http://www.idunn.no/tools/rss?tidsskrift=arbeid",
+              #             "http://www.idunn.no/tools/rss?tidsskrift=ip", # ended 2015?
+              "http://www.idunn.no/tools/rss?tidsskrift=jv",
+              "http://www.idunn.no/tools/rss?tidsskrift=lor",
+              #             "https://www.idunn.no/tools/rss?tidsskrift=nd&marketplaceId=2000",
+              "http://www.idunn.no/tools/rss?tidsskrift=skatt",
+              "http://www.idunn.no/tools/rss?tidsskrift=stat",
+              "http://www.idunn.no/tools/rss?tidsskrift=tfr",
+              "https://www.idunn.no/tools/rss?tidsskrift=kritisk_juss&marketplaceId=2000",
+              "https://www.idunn.no/tools/rss?tidsskrift=tidsskrift_for_eiendomsrett&marketplaceId=2000",
+              "https://www.idunn.no/tools/rss?tidsskrift=tidsskrift_for_familierett_arverett_og_barnevernrettslige_sp&marketplaceId=2000",
+              "https://www.idunn.no/tools/rss?tidsskrift=tidsskrift_for_forretningsjus&marketplaceId=2000",
+              "https://www.idunn.no/tools/rss?tidsskrift=tidsskrift_for_strafferett",
+              "https://www.idunn.no/tools/rss?tidsskrift=tidsskrift_for_erstatningsrett_forsikringsrett_og_trygderett&marketplaceId=2000",
+              "https://www.idunn.no/tools/rss?tidsskrift=oslo_law_review&marketplaceId=2000",
+              #             "http://ejil.oxfordjournals.org/rss/current.xml",
+              #             "http://www.tandfonline.com/action/showFeed?type=etoc&feed=rss&jc=rnhr20",
+              ]
+
+
+def fetch_feeds(URLs,
                 item_count=1,
                 filter_title=None):
+    """
+    Fetch a list of RSS feeds.
+    The content of each feed is output to the results file.
+
+    Params:
+        URLs: a list of URL strings
+        item_count: the number of items to fetch from each URL
+        filter_title: include only items containing this string in the title
+    """
     #     today = datetime.date.today()
     #     first = today.replace(day=1)
     #     lastMonth = first - datetime.timedelta(days=32)
@@ -239,7 +255,7 @@ def fetch_all():
     fetch_books("https://ub-tilvekst.uio.no/lists/68.json?days=%d" % options.days)
 
     heading("Tidsskrifter", level="h2")
-    fetch_feeds()
+    fetch_feeds(idunn_URLs)
     fetch_norart()
     fetch_feeds(["https://www.cambridge.org/core/rss/subject/id/7C9FB6788DD8D7E6696263BC774F4D5B"], item_count=10, filter_title='[Article]')
 
