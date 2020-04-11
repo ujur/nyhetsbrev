@@ -32,7 +32,7 @@ def get_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument("-v", "--verbose", help="verbose output", action="store_true")
     parser.add_argument("-out", help="output file name", default="tilvekst.html")
-    parser.add_argument("-days", help="number of days to include", type=int, default="32")
+    parser.add_argument("-days", help="number of days to include", type=int, default="16")
     return parser.parse_args()
 
 
@@ -62,7 +62,8 @@ idunn_URLs = ["http://www.idunn.no/tools/rss?tidsskrift=arbeid",
 
 def fetch_feeds(URLs,
                 item_count=1,
-                filter_title=None):
+                filter_title=None,
+                start_date=None):
     """
     Fetch a list of RSS feeds.
     The content of each feed is output to the results file.
@@ -71,11 +72,8 @@ def fetch_feeds(URLs,
         URLs: a list of URL strings
         item_count: the number of items to fetch from each URL
         filter_title: include only items containing this string in the title
+        start_date: include only items published at this date or later
     """
-    #     today = datetime.date.today()
-    #     first = today.replace(day=1)
-    #     lastMonth = first - datetime.timedelta(days=32)
-    #     print(lastMonth.strftime("%Y%m%d"))
     feeds = [feedparser.parse(URL) for URL in URLs]
 #     print(feeds)
     for feed in feeds:
@@ -84,13 +82,23 @@ def fetch_feeds(URLs,
         if filter_title:
             items = [item for item in items if filter_title in item["title"]]
 
+        # fix prism data
+        for item in items:
+            if 'prism_publicationdate' in item and not 'published' in item:
+                item['published'] = item['prism_publicationdate']
+
         # display channel title if we list more than one item
         if len(items) > 0 and item_count > 1:
             heading(feed["channel"]["title"], level='h2')
+
         # sort items
         if len(items) > 1:
             if 'published' in items[0]:
-                items = sorted(items, key=lambda x: x["published"], reverse=True)
+                items.sort(key=lambda x: (x["published"], x["title"]), reverse=True)
+                # filter by start_date if available
+                if start_date:
+                    items = [item for item in items if item['published'] >= start_date]
+
         for item in items[:item_count]:
             heading(item["title"])
 #             print(item["date"])
@@ -257,11 +265,16 @@ def fetch_all():
     heading("Tidsskrifter", level="h2")
     fetch_feeds(idunn_URLs)
     fetch_norart()
-    fetch_feeds(["https://www.cambridge.org/core/rss/subject/id/7C9FB6788DD8D7E6696263BC774F4D5B"], item_count=10, filter_title='[Article]')
+    fetch_feeds(["https://www.cambridge.org/core/rss/subject/id/7C9FB6788DD8D7E6696263BC774F4D5B"], item_count=-1, filter_title='[Article]')
 
 
 if __name__ == '__main__':
     options = get_arguments()
+    today = datetime.date.today()
+    start_date = today - datetime.timedelta(options.days)
+#     first = today.replace(day=1)
+#     lastMonth = first - datetime.timedelta(days=32)
+#     print(lastMonth.strftime("%Y%m%d"))
     doc, tag, text = Doc().tagtext()
     with tag('html'):
         with tag('head'):
