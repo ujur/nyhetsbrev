@@ -79,6 +79,9 @@ def fetch_feeds(URLs,
     for feed in feeds:
         print(feed["channel"]["title"])  # to console, for debugging
         items = feed["items"]
+        # remove duplicate items by URL
+        items_seen = set()
+
         if filter_title:
             items = [item for item in items if filter_title in item["title"]]
 
@@ -100,15 +103,17 @@ def fetch_feeds(URLs,
                     items = [item for item in items if item['published'] >= start_date]
 
         for item in items[:item_count]:
-            heading(item["title"])
-#             print(item["date"])
-#             print(item["date_parsed"])
-            if "summary" in item:
-                doc.asis(item["summary"])
-            if "published" in item:
-                text("Publisert: %s" % item["published"])
-            with tag('p'):
-                link(item["link"], "Fulltekst")
+            if item['link'] not in items_seen:
+                items_seen.add(item['link'])
+                heading(item["title"])
+    #             print(item["date"])
+    #             print(item["date_parsed"])
+                if "summary" in item:
+                    doc.asis(item["summary"])
+                if "published" in item:
+                    text("Publisert: %s" % item["published"])
+                with tag('p'):
+                    link(item["link"], "Fulltekst")
 
 
 def fetch_norart():
