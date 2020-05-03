@@ -62,8 +62,7 @@ idunn_URLs = ["http://www.idunn.no/tools/rss?tidsskrift=arbeid",
 
 def fetch_feeds(URLs,
                 item_count=1,
-                filter_title=None,
-                start_date=None):
+                filter_title=None):
     """
     Fetch a list of RSS feeds.
     The content of each feed is output to the results file.
@@ -72,7 +71,6 @@ def fetch_feeds(URLs,
         URLs: a list of URL strings
         item_count: the number of items to fetch from each URL
         filter_title: include only items containing this string in the title
-        start_date: include only items published at this date or later
     """
     feeds = [feedparser.parse(URL) for URL in URLs]
 #     print(feeds)
@@ -88,7 +86,10 @@ def fetch_feeds(URLs,
         # fix prism data
         for item in items:
             if 'prism_publicationdate' in item and not 'published' in item:
-                item['published'] = item['prism_publicationdate']
+                d = item['prism_publicationdate']
+                item['published'] = d
+#                 item['published_parsed'] = datetime.datetime.strptime(d)
+                item['published_parsed'] = feedparser._parse_date(d)
 
         # display channel title if we list more than one item
         if len(items) > 0 and item_count > 1:
@@ -100,7 +101,8 @@ def fetch_feeds(URLs,
                 items.sort(key=lambda x: (x["published"], x["title"]), reverse=True)
                 # filter by start_date if available
                 if start_date:
-                    items = [item for item in items if item['published'] >= start_date]
+                    items = [item for item in items
+                             if datetime.date.fromtimestamp(time.mktime(item['published_parsed'])) >= start_date]
 
         for item in items[:item_count]:
             if item['link'] not in items_seen:
