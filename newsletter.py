@@ -272,7 +272,7 @@ def fetch_all():
     heading("Tidsskrifter", level="h2")
     fetch_feeds(idunn_URLs)
     fetch_norart()
-    fetch_feeds(["https://www.cambridge.org/core/rss/subject/id/7C9FB6788DD8D7E6696263BC774F4D5B"], item_count=-1, filter_title='[Article]')
+    #fetch_feeds(["https://www.cambridge.org/core/rss/subject/id/7C9FB6788DD8D7E6696263BC774F4D5B"], item_count=-1, filter_title='[Article]')
 
 
 if __name__ == '__main__':
