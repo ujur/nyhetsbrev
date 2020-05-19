@@ -246,7 +246,7 @@ def fetch_all():
     # Boilerplate intro
     text("""I dette nyhetsbrevet finner du nye bøker, 
         e-bøker anskaffet ved Juridisk bibliotek, samt nyeste utgaver av en rekke sentrale norske tidsskrift.""")
-    doc.stag("br")
+    doc.stag("p")
     text("""De trykte bøkene er sortert på overordnet emne ut fra deres plassering i biblioteket. 
         En bok kan ha flere emner og klassifikasjoner. Overskriftene og inndelingen er  tar utgangspunkt i """)
     link("http://app.uio.no/ub/ujur/l-skjema/", "L-skjema")
