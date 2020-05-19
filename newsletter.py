@@ -244,17 +244,18 @@ def fetch_books(URL):
 def fetch_all():
     heading("Nyhetsbrev fra Juridisk bibliotek", level="h1")
     # Boilerplate intro
-    text("""I dette nyhetsbrevet finner du nye bøker som er anskaffet til et
-        eller flere av bibliotekene ved Juridisk bibliotek. Overskriftene
-        og inndelingen er basert på """)
+    text("""I dette nyhetsbrevet finner du nye bøker, 
+        e-bøker anskaffet ved Juridisk bibliotek, samt nyeste utgaver av en rekke sentrale norske tidsskrift.""")
+    doc.stag("br")
+    text("""De trykte bøkene er sortert på overordnet emne ut fra deres plassering i biblioteket. 
+        En bok kan ha flere emner og klassifikasjoner. Overskriftene og inndelingen er  tar utgangspunkt i """)
     link("http://app.uio.no/ub/ujur/l-skjema/", "L-skjema")
-    text(""", bibliotekets klassifikasjonssystem. En bok kan ha flere emner og
-        klassifikasjoner. Listen under er sortert etter hovedemnet de er
-        stilt opp på i biblioteket.""")
+    text(""", bibliotekets klassifikasjonssystem. Listen under er sortert etter hovedemnet de er stilt opp på i biblioteket.""")
     doc.stag("br")
-    text("I tillegg finner du nyeste utgaver av en rekke sentrale norske tidsskrift.")
+    text("""En del e-bøker ligger i databaser og er ikke synlige i Oria. Se siden vår for juridiske e-bøker for oversikt over baser som inneholder e-bøker. 
+         Videre er det viktig å huske på at e-bøker innen andre fag, ikke er synlige i dette nyhetsbrevet.""")
     doc.stag("br")
-    text("NB husk å  skru på HTML-visning i Outlook. Tilbakemeldinger, endringsforslag m.m. kan sendes til ")
+    text("""NB husk å  skru på HTML-visning i Outlook. Tilbakemeldinger, endringsforslag m.m. kan sendes til """)
     link("rjbergst@ub.uio.no", "Rebecca J. Five Bergstrøm")
 
     heading("Nye e-bøker", level="h2")
