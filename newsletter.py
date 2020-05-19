@@ -252,7 +252,9 @@ def fetch_all():
     link("http://app.uio.no/ub/ujur/l-skjema/", "L-skjema")
     text(""", bibliotekets klassifikasjonssystem. Listen under er sortert etter hovedemnet de er stilt opp på i biblioteket.""")
     doc.stag("br")
-    text("""En del e-bøker ligger i databaser og er ikke synlige i Oria. Se siden vår for juridiske e-bøker for oversikt over baser som inneholder e-bøker. 
+    text("""En del e-bøker ligger i databaser og er ikke synlige i Oria. Se siden vår for juridiske e-bøker""")
+    link("https://www.ub.uio.no/fag/jus/jus/juridiske-eboker.html", "juridiske e-bøker")
+    text("""for oversikt over baser som inneholder e-bøker. 
          Videre er det viktig å huske på at e-bøker innen andre fag, ikke er synlige i dette nyhetsbrevet.""")
     doc.stag("br")
     text("""NB husk å  skru på HTML-visning i Outlook. Tilbakemeldinger, endringsforslag m.m. kan sendes til """)
