@@ -226,6 +226,8 @@ def fetch_books(URL):
     books = [book for book in books if include_book(book)]
     # Order by title
     books = sorted(books, key=itemgetter("title"))
+    print('Number of books:', len(books))
+
     for partition in partitions:
         description, start, to = partition
         current = [book for book in books if start <= get_number(book) <= to]
@@ -244,17 +246,17 @@ def fetch_books(URL):
 def fetch_all():
     heading("Nyhetsbrev fra Juridisk bibliotek", level="h1")
     # Boilerplate intro
-    text("""I dette nyhetsbrevet finner du nye bøker, 
+    text("""I dette nyhetsbrevet finner du nye bøker,
         e-bøker anskaffet ved Juridisk bibliotek, samt nyeste utgaver av en rekke sentrale norske tidsskrift.""")
     doc.stag("p")
-    text("""De trykte bøkene er sortert på overordnet emne ut fra deres plassering i biblioteket. 
+    text("""De trykte bøkene er sortert på overordnet emne ut fra deres plassering i biblioteket.
         En bok kan ha flere emner og klassifikasjoner. Overskriftene og inndelingen er  tar utgangspunkt i """)
     link("http://app.uio.no/ub/ujur/l-skjema/", "L-skjema")
     text(""", bibliotekets klassifikasjonssystem. Listen under er sortert etter hovedemnet de er stilt opp på i biblioteket.""")
     doc.stag("p")
     text("""En del e-bøker ligger i databaser og er ikke synlige i Oria. Se siden vår for """)
     link("https://www.ub.uio.no/fag/jus/jus/juridiske-eboker.html", "juridiske e-bøker")
-    text(""" for oversikt over baser som inneholder e-bøker. 
+    text(""" for oversikt over baser som inneholder e-bøker.
          Videre er det viktig å huske på at e-bøker innen andre fag, ikke er synlige i dette nyhetsbrevet.""")
     doc.stag("p")
     text("""NB husk å  skru på HTML-visning i Outlook. Tilbakemeldinger, endringsforslag m.m. kan sendes til """)
