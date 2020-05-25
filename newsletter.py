@@ -193,21 +193,21 @@ def get_number(book):
         return 0
 
 
-def fetch_books(URL):
+L_skjema = [("Festskrift", 19, 19),
+            ("Rettsinformatikk", 39, 39.9),
+            ("Rettsvitenskap i alminnelighet", 1, 107),
+            ("Kvinnerett", 152, 152.9),
+            ("Privatrett", 108, 637),
+            ("Offentlig rett", 638, 1127),
+            ("Menneskerettigheter", 1164, 1164),
+            ("Folkerett", 1129, 1235),
+            ("Kirkerett", 1236, 1287)]
+
+
+def fetch_books(URL, partitions=None):
     """
     Fetch books from UB tilvekst
     """
-    partitions = [
-        ("Festskrift", 19, 19),
-        ("Rettsinformatikk", 39, 39.9),
-        ("Rettsvitenskap i alminnelighet", 1, 107),
-        ("Kvinnerett", 152, 152.9),
-        ("Privatrett", 108, 637),
-        ("Offentlig rett", 638, 1127),
-        ("Menneskerettigheter", 1164, 1164),
-        ("Folkerett", 1129, 1235),
-        ("Kirkerett", 1236, 1287)
-    ]
 
     def include_book(book):
         try:
@@ -228,17 +228,19 @@ def fetch_books(URL):
     books = sorted(books, key=itemgetter("title"))
     print('Number of books:', len(books))
 
-    for partition in partitions:
-        description, start, to = partition
-        current = [book for book in books if start <= get_number(book) <= to]
-        if current:
-            # Remove current partition from books
-            books = [item for item in books if item not in current]
-            heading(description)
-            for book in current:
-                list_book(book)
+    if partitions:
+        for partition in partitions:
+            description, start, to = partition
+            current = [book for book in books if start <= get_number(book) <= to]
+            if current:
+                # Remove current partition from books
+                books = [item for item in books if item not in current]
+                heading(description)
+                for book in current:
+                    list_book(book)
     if books:
-        heading("Alle fag")
+        if partitions:
+            heading("Andre fag og skjønnlitteratur")
         for book in books:
             list_book(book)
 
@@ -272,7 +274,7 @@ def fetch_all():
 #     fetch_feeds(["https://link.springer.com/search.rss?facet-discipline=%22Law%22&showAll=false&facet-language=%22En%22&facet-content-type=%22Book%22"], item_count=-1)
 
     heading("Nye trykte bøker", level="h2")
-    fetch_books("https://ub-tilvekst.uio.no/lists/68.json?days=%d" % options.days)
+    fetch_books("https://ub-tilvekst.uio.no/lists/68.json?days=%d" % options.days, partitions=L_skjema)
 
     heading("Tidsskrifter", level="h2")
     fetch_feeds(idunn_URLs)
