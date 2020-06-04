@@ -262,7 +262,7 @@ def fetch_all():
          Videre er det viktig å huske på at e-bøker innen andre fag, ikke er synlige i dette nyhetsbrevet.""")
     doc.stag("p")
     text("""NB husk å  skru på HTML-visning i Outlook. Tilbakemeldinger, endringsforslag m.m. kan sendes til """)
-    link("rjbergst@ub.uio.no", "Rebecca J. Five Bergstrøm")
+    link("s.e.ostbye@ub.uio.no", "Sigrid Elisabeth Østbye")
 
     heading("Nye e-bøker", level="h2")
     fetch_books("https://ub-tilvekst.uio.no/lists/72.json?days=%d" % options.days)
