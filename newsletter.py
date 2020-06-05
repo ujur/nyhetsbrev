@@ -21,8 +21,9 @@ try:
     from html2text import html2text
     from yattag import Doc, indent
     from bs4 import BeautifulSoup
+    from unidecode import unidecode
 except ImportError:
-    pip_install("lxml", "feedparser", "requests", "html2text", "beautifulsoup4", "yattag==1.12.0")
+    pip_install("lxml", "feedparser", "requests", "html2text", "beautifulsoup4", "yattag==1.12.0", "unidecode")
     print("Software installed, restart program. Exiting in 5 seconds.")
     time.sleep(5)
     exit(0)
@@ -75,7 +76,7 @@ def fetch_feeds(URLs,
     feeds = [feedparser.parse(URL) for URL in URLs]
 #     print(feeds)
     for feed in feeds:
-        print(feed["channel"]["title"])  # to console, for debugging
+        print(unidecode(feed["channel"]["title"]))  # to console, for debugging
         items = feed["items"]
         # remove duplicate items by URL
         items_seen = set()
@@ -188,7 +189,7 @@ def get_number(book):
     try:
         return int(float(book["permanent_call_number"].split()[0])) if book["permanent_call_number_type"] != "Dewey Decimal classification" else 0
     except ValueError as e:
-        print(book["title"], book["permanent_call_number"])
+        print(unidecode(book["title"]), book["permanent_call_number"])
 #         print(e)
         return 0
 
