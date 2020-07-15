@@ -212,9 +212,9 @@ def fetch_books(URL, partitions=None):
 
     def include_book(book):
         try:
-            return is_ebook(book) or (book["permanent_call_number"]
-                                      and book["location_name"] not in ignore_collections
-                                      and book["publication_date"] > current_year - 3)
+            return (book["publication_date"] > current_year - 3
+                    and (is_ebook(book) or (book["permanent_call_number"]
+                                            and book["location_name"] not in ignore_collections)))
         except Exception as e:
             print(e)
             print("Error for title:", book["title"], "link:", book["self_link"])
