@@ -56,6 +56,7 @@ idunn_URLs = ["http://www.idunn.no/tools/rss?tidsskrift=arbeid",
               "https://www.idunn.no/tools/rss?tidsskrift=tidsskrift_for_strafferett",
               "https://www.idunn.no/tools/rss?tidsskrift=tidsskrift_for_erstatningsrett_forsikringsrett_og_trygderett&marketplaceId=2000",
               "https://www.idunn.no/tools/rss?tidsskrift=oslo_law_review&marketplaceId=2000",
+              'https://www.idunn.no/tools/rss?tidsskrift=njsp&marketplaceId=2000',
               #             "http://ejil.oxfordjournals.org/rss/current.xml",
               #             "http://www.tandfonline.com/action/showFeed?type=etoc&feed=rss&jc=rnhr20",
               ]
