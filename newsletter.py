@@ -104,7 +104,7 @@ def fetch_feeds(URLs,
                 # filter by start_date if available
                 if start_date:
                     items = [item for item in items
-                             if datetime.date.fromtimestamp(time.mktime(item['published_parsed'])) >= start_date]
+                             if not item['published_parsed'] or datetime.date.fromtimestamp(time.mktime(item['published_parsed'])) >= start_date]
 
         for item in items[:item_count]:
             if item['link'] not in items_seen:
