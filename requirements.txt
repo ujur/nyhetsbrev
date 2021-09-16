@@ -1,0 +1,7 @@
+lxml
+feedparser
+requests
+html2text
+beautifulsoup4
+yattag==1.12.0
+unidecode

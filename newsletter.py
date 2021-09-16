@@ -13,7 +13,7 @@ import argparse
 import datetime
 import sys
 import time
-from utils import pip_install
+import subprocess
 # Install dependencies if required
 try:
     import feedparser
@@ -23,7 +23,8 @@ try:
     from bs4 import BeautifulSoup
     from unidecode import unidecode
 except ImportError:
-    pip_install("lxml", "feedparser", "requests", "html2text", "beautifulsoup4", "yattag==1.12.0", "unidecode")
+    subprocess.check_call([sys.executable, '-m', 'pip',
+                           'install', '-r', ' requirements.txt'])
     print("Software installed, restart program. Exiting in 5 seconds.")
     time.sleep(5)
     exit(0)
@@ -33,7 +34,11 @@ def get_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument("-v", "--verbose", help="verbose output", action="store_true")
     parser.add_argument("-out", help="output file name", default="tilvekst.html")
-    parser.add_argument("-days", help="number of days to include", type=int, default="16")
+    parser.add_argument(
+        "-days",
+        help="number of days to include",
+        type=int,
+        default="16")
     return parser.parse_args()
 
 
@@ -188,7 +193,9 @@ def get_number(book):
         return 0
 
     try:
-        return int(float(book["permanent_call_number"].split()[0])) if book["permanent_call_number_type"] != "Dewey Decimal classification" else 0
+        return (int(float(book["permanent_call_number"].split()[0]))
+                if book["permanent_call_number_type"] != "Dewey Decimal classification"
+                else 0)
     except ValueError as e:
         print(unidecode(book["title"]), book["permanent_call_number"])
 #         print(e)
@@ -276,7 +283,9 @@ def fetch_all():
 #     fetch_feeds(["https://link.springer.com/search.rss?facet-discipline=%22Law%22&showAll=false&facet-language=%22En%22&facet-content-type=%22Book%22"], item_count=-1)
 
     heading("Nye trykte bøker", level="h2")
-    fetch_books("https://ub-tilvekst.uio.no/lists/68.json?days=%d" % options.days, partitions=L_skjema)
+    fetch_books(
+        "https://ub-tilvekst.uio.no/lists/68.json?days=%d" %
+        options.days, partitions=L_skjema)
 
     heading("Tidsskrifter", level="h2")
     fetch_feeds(idunn_URLs)
