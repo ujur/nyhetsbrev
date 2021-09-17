@@ -24,7 +24,7 @@ try:
     from unidecode import unidecode
 except ImportError:
     subprocess.check_call([sys.executable, '-m', 'pip',
-                           'install', '-r', ' requirements.txt'])
+                           'install', '-r', 'requirements.txt'])
     print("Software installed, restart program. Exiting in 5 seconds.")
     time.sleep(5)
     exit(0)
