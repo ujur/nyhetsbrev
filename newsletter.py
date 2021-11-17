@@ -94,10 +94,10 @@ def fetch_feeds(URLs,
         # fix prism data
         for item in items:
             if 'prism_publicationdate' in item and not 'published' in item:
-                d = item['prism_publicationdate']
-                item['published'] = d
-#                 item['published_parsed'] = datetime.datetime.strptime(d)
-                item['published_parsed'] = feedparser._parse_date(d)
+                date = item['prism_publicationdate']
+                item['published'] = date
+#                 item['published_parsed'] = datetime.datetime.strptime(date)
+                item['published_parsed'] = feedparser._parse_date(date)
 
         # display channel title if we list more than one item
         if len(items) > 0 and item_count > 1:
