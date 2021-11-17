@@ -196,7 +196,7 @@ def get_number(book):
             permanent_call_number = book["permanent_call_number"]
             permanent_call_number = permanent_call_number.split()[0]
             if permanent_call_number:
-                if permanent_call_number.is_numeric():
+                if permanent_call_number.isnumeric():
                     number = int(permanent_call_number)
                 else:
                     try:
@@ -229,12 +229,14 @@ def fetch_books(URL, partitions=None):
 
     def include_book(book):
         try:
-            return (book["publication_date"] > current_year - 3
+            publication_date = book.get('publication_date')
+            return (publication_date > current_year - 3
                     and (is_ebook(book) or (book["permanent_call_number"]
                                             and book["location_name"] not in ignore_collections)))
         except Exception as e:
-            print(e)
-            print("Error for title:", book["title"], "link:", book["self_link"])
+            if options.verbose:
+                print("Error for title:", book["title"], "link:", book["self_link"], e)
+            return True
 
     response = requests.get(URL)
     books = json.loads(response.text)
