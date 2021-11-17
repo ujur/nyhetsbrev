@@ -190,17 +190,25 @@ def get_number(book):
     """
     Get the l-skjema call number of the book
     """
-    if is_ebook(book):
-        return 0
-
-    try:
-        return (int(float(book["permanent_call_number"].split()[0]))
-                if book["permanent_call_number_type"] != "Dewey Decimal classification"
-                else 0)
-    except ValueError as e:
-        print(unidecode(book["title"]), book["permanent_call_number"])
-#         print(e)
-        return 0
+    number = 0
+    if not is_ebook(book):
+        if book["permanent_call_number_type"] != "Dewey Decimal classification":
+            permanent_call_number = book["permanent_call_number"]
+            permanent_call_number = permanent_call_number.split()[0]
+            if permanent_call_number:
+                if permanent_call_number.is_numeric():
+                    number = int(permanent_call_number)
+                else:
+                    try:
+                        number = float(permanent_call_number)
+                    except ValueError as e:
+                        print('Couldn\'t parse permanent_call_number, included in "Andre fag og skjønnlitteratur":',
+                              unidecode(book["title"]), book["permanent_call_number"], e)
+            else:
+                print('No permanent_call_number, included in "Andre fag og skjønnlitteratur":',
+                      unidecode(book["title"]),
+                      book["permanent_call_number"])
+    return number
 
 
 L_skjema = [("Festskrift", 19, 19),
