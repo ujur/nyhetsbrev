@@ -79,9 +79,11 @@ def fetch_feeds(URLs,
     feeds = [feedparser.parse(URL) for URL in URLs]
 #     print(feeds)
     for feed in feeds:
-        if 'channel' in feed:
-            pass
-            # print(unidecode(feed["channel"]["title"]))  # to console, for debugging
+        if options.verbose:
+            if 'channel' in feed:
+                channel = feed['channel']
+                if 'title' in channel:
+                    print(unidecode(channel['title']))  # to console, for debugging
         items = feed["items"]
         # remove duplicate items by URL
         items_seen = set()
