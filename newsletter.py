@@ -194,8 +194,8 @@ def get_number(book):
     if not is_ebook(book):
         if book["permanent_call_number_type"] != "Dewey Decimal classification":
             permanent_call_number = book["permanent_call_number"]
-            permanent_call_number = permanent_call_number.split()[0]
             if permanent_call_number:
+                permanent_call_number = permanent_call_number.split()[0]
                 if permanent_call_number.isnumeric():
                     number = int(permanent_call_number)
                 else:
@@ -233,7 +233,7 @@ def fetch_books(URL, partitions=None):
             return (is_ebook(book)
                     or
                     (publication_date > current_year - 3
-                     and book["permanent_call_number"]
+                     # and book["permanent_call_number"]
                      and book["location_name"] not in ignore_collections))
         except Exception as e:
             if options.verbose:
