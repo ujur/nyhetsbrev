@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
 # encoding: UTF-8
-from __future__ import print_function
-from __future__ import division
-from __future__ import unicode_literals
 """
 Script for making lists of newly acquired books and articles
 """
