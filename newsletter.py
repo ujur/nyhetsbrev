@@ -43,29 +43,31 @@ def get_plaintext(html):
     return html2text(html).strip()
 
 
-idunn_URLs = ["http://www.idunn.no/tools/rss?tidsskrift=arbeid",
-              #             "http://www.idunn.no/tools/rss?tidsskrift=ip", # ended 2015?
-              "http://www.idunn.no/tools/rss?tidsskrift=jv",
-              "http://www.idunn.no/tools/rss?tidsskrift=lor",
-              #             "https://www.idunn.no/tools/rss?tidsskrift=nd&marketplaceId=2000",
-              "http://www.idunn.no/tools/rss?tidsskrift=skatt",
-              "http://www.idunn.no/tools/rss?tidsskrift=stat",
-              "http://www.idunn.no/tools/rss?tidsskrift=tfr",
-              "https://www.idunn.no/tools/rss?tidsskrift=kritisk_juss&marketplaceId=2000",
-              "https://www.idunn.no/tools/rss?tidsskrift=tidsskrift_for_eiendomsrett&marketplaceId=2000",
-              "https://www.idunn.no/tools/rss?tidsskrift=tidsskrift_for_familierett_arverett_og_barnevernrettslige_sp&marketplaceId=2000",
-              "https://www.idunn.no/tools/rss?tidsskrift=tidsskrift_for_forretningsjus&marketplaceId=2000",
-              "https://www.idunn.no/tools/rss?tidsskrift=tidsskrift_for_strafferett",
-              "https://www.idunn.no/tools/rss?tidsskrift=tidsskrift_for_erstatningsrett_forsikringsrett_og_trygderett&marketplaceId=2000",
-              "https://www.idunn.no/tools/rss?tidsskrift=oslo_law_review&marketplaceId=2000",
-              'https://www.idunn.no/tools/rss?tidsskrift=njsp&marketplaceId=2000',
-              #             "http://ejil.oxfordjournals.org/rss/current.xml",
-              #             "http://www.tandfonline.com/action/showFeed?type=etoc&feed=rss&jc=rnhr20",
-              ]
+idunn_URLs = [
+    'https://www.idunn.no/action/showFeed?type=etoc&feed=rss&jc=arbeidsrett',
+    'https://www.idunn.no/action/showFeed?type=etoc&feed=rss&jc=jv',
+    'https://www.idunn.no/action/showFeed?type=etoc&feed=rss&jc=kp',
+    'https://www.idunn.no/action/showFeed?type=etoc&feed=rss&jc=kj',
+    'https://www.idunn.no/action/showFeed?type=etoc&feed=rss&jc=lor',
+    'https://www.idunn.no/action/showFeed?type=etoc&feed=rss&jc=njhr',
+    'https://www.idunn.no/action/showFeed?type=etoc&feed=rss&jc=njsp',
+    'https://www.idunn.no/action/showFeed?type=etoc&feed=rss&jc=nd',
+    'https://www.idunn.no/action/showFeed?type=etoc&feed=rss&jc=olr',
+    'https://www.idunn.no/action/showFeed?type=etoc&feed=rss&jc=skatterett',
+    'https://www.idunn.no/action/showFeed?type=etoc&feed=rss&jc=tfei',
+    'https://www.idunn.no/action/showFeed?type=etoc&feed=rss&jc=teft',
+    'https://www.idunn.no/action/showFeed?type=etoc&feed=rss&jc=fab',
+    'https://www.idunn.no/action/showFeed?type=etoc&feed=rss&jc=tff',
+    'https://www.idunn.no/action/showFeed?type=etoc&feed=rss&jc=tfr',
+    'https://www.idunn.no/action/showFeed?type=etoc&feed=rss&jc=strafferett',
+    'https://www.idunn.no/action/showFeed?type=etoc&feed=rss&jc=stat',
+    #             "http://ejil.oxfordjournals.org/rss/current.xml",
+    #             "http://www.tandfonline.com/action/showFeed?type=etoc&feed=rss&jc=rnhr20",
+]
 
 
 def fetch_feeds(URLs,
-                item_count=1,
+                # item_count=1,
                 filter_title=None):
     """
     Fetch a list of RSS feeds.
@@ -79,11 +81,11 @@ def fetch_feeds(URLs,
     feeds = [feedparser.parse(URL) for URL in URLs]
 #     print(feeds)
     for feed in feeds:
+        channel_title = feed['channel']['title'].replace('Table of Contents', '')
+        heading(channel_title, level='h2')
+
         if options.verbose:
-            if 'channel' in feed:
-                channel = feed['channel']
-                if 'title' in channel:
-                    print(unidecode(channel['title']))  # to console, for debugging
+            print(unidecode(channel_title))  # to console, for debugging
         items = feed["items"]
         # remove duplicate items by URL
         items_seen = set()
@@ -99,10 +101,6 @@ def fetch_feeds(URLs,
 #                 item['published_parsed'] = datetime.datetime.strptime(date)
                 item['published_parsed'] = feedparser._parse_date(date)
 
-        # display channel title if we list more than one item
-        if len(items) > 0 and item_count > 1:
-            heading(feed["channel"]["title"], level='h2')
-
         # sort items
         if len(items) > 1:
             if 'published' in items[0]:
@@ -112,14 +110,17 @@ def fetch_feeds(URLs,
                     items = [item for item in items
                              if not item['published_parsed'] or datetime.date.fromtimestamp(time.mktime(item['published_parsed'])) >= start_date]
 
-        for item in items[:item_count]:
+        # for item in items[:item_count]:
+        for item in items:
             if item['link'] not in items_seen:
                 items_seen.add(item['link'])
                 heading(item["title"])
     #             print(item["date"])
     #             print(item["date_parsed"])
-                if "summary" in item:
-                    doc.asis(item["summary"])
+                if "content" in item:
+                    # get description without href
+                    doc.asis(item['content'][1]['value'])
+                    # print(item.summary)
                 if "published" in item:
                     text("Publisert: %s" % item["published"])
                 with tag('p'):
