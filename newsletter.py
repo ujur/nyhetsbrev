@@ -124,7 +124,8 @@ def fetch_feeds(URLs,
                 if "published" in item:
                     text("Publisert: %s" % item["published"])
                 with tag('p'):
-                    link(item["link"], "Fulltekst")
+                    link(f'https://login.ezproxy.uio.no/login?url={item["link"]}',
+                         "Fulltekst")
 
 
 def fetch_norart():
