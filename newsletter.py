@@ -49,7 +49,6 @@ idunn_URLs = [
     'https://www.idunn.no/action/showFeed?type=etoc&feed=rss&jc=kp',
     'https://www.idunn.no/action/showFeed?type=etoc&feed=rss&jc=kj',
     'https://www.idunn.no/action/showFeed?type=etoc&feed=rss&jc=lor',
-    'https://www.idunn.no/action/showFeed?type=etoc&feed=rss&jc=njhr',
     'https://www.idunn.no/action/showFeed?type=etoc&feed=rss&jc=njsp',
     'https://www.idunn.no/action/showFeed?type=etoc&feed=rss&jc=nd',
     'https://www.idunn.no/action/showFeed?type=etoc&feed=rss&jc=olr',
