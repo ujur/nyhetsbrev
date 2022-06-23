@@ -308,6 +308,7 @@ def fetch_all():
 
 
 if __name__ == '__main__':
+    print('Python' + sys.version)
     options = get_arguments()
     today = datetime.date.today()
     start_date = today - datetime.timedelta(options.days)
