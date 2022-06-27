@@ -10,6 +10,7 @@ import argparse
 import datetime
 import sys
 import time
+import pprint
 import subprocess
 # Install dependencies if required
 try:
@@ -78,7 +79,7 @@ def fetch_feeds(URLs,
         filter_title: include only items containing this string in the title
     """
     feeds = [feedparser.parse(URL) for URL in URLs]
-#     print(feeds)
+    # pprint.pp(feeds[0])
     for feed in feeds:
         channel_title = feed['channel']['title'].replace('Table of Contents', '')
         heading(channel_title, level='h2')
@@ -116,9 +117,11 @@ def fetch_feeds(URLs,
                 heading(item["title"])
     #             print(item["date"])
     #             print(item["date_parsed"])
-                if "content" in item:
+                if 'summary' in item:
+                    doc.asis(item['summary'])
+                # if "content" in item:
                     # get description without href
-                    doc.asis(item['content'][1]['value'])
+                    # doc.asis(item['content'][1]['value'])
                     # print(item.summary)
                 if "published" in item:
                     text("Publisert: %s" % item["published"])
