@@ -61,6 +61,7 @@ idunn_URLs = [
     'https://www.idunn.no/action/showFeed?type=etoc&feed=rss&jc=tfr',
     'https://www.idunn.no/action/showFeed?type=etoc&feed=rss&jc=strafferett',
     'https://www.idunn.no/action/showFeed?type=etoc&feed=rss&jc=stat',
+    'https://www.tandfonline.com/feed/rss/rnhr20',
     #             "http://ejil.oxfordjournals.org/rss/current.xml",
     #             "http://www.tandfonline.com/action/showFeed?type=etoc&feed=rss&jc=rnhr20",
 ]
