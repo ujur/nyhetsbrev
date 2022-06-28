@@ -95,12 +95,11 @@ def fetch_feeds(URLs,
             items = [item for item in items if filter_title in item["title"]]
 
         # fix prism data
-        for item in items:
-            if 'prism_publicationdate' in item and not 'published' in item:
-                date = item['prism_publicationdate']
-                item['published'] = date
-#                 item['published_parsed'] = datetime.datetime.strptime(date)
-                item['published_parsed'] = feedparser._parse_date(date)
+        # for item in items:
+        #     if 'prism_publicationdate' in item and not 'published' in item:
+        #         date = item['prism_publicationdate']
+        #         item['published'] = date
+        #         item['published_parsed'] = feedparser._parse_date(date)
 
         # sort items
         if len(items) > 1:
