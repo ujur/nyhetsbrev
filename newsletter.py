@@ -274,21 +274,26 @@ def fetch_books(URL, partitions=None):
 def fetch_all():
     heading("Nyhetsbrev fra Juridisk bibliotek", level="h1")
     # Boilerplate intro
-    text("""I dette nyhetsbrevet finner du nye bøker,
-        e-bøker anskaffet ved Juridisk bibliotek, samt nyeste utgaver av en rekke sentrale norske tidsskrift.""")
+    text("""I dette nyhetsbrevet finner du nye bøker og
+        e-bøker anskaffet ved Juridisk bibliotek, samt nyeste utgaver av en
+        rekke sentrale norske tidsskrifter.""")
     doc.stag("p")
     text("""De trykte bøkene er sortert på overordnet emne ut fra deres plassering i biblioteket.
-        En bok kan ha flere emner og klassifikasjoner. Overskriftene og inndelingen er  tar utgangspunkt i """)
+        En bok kan ha flere emner og klassifikasjoner.
+        Overskriftene og inndelingen tar utgangspunkt i """)
     link("http://app.uio.no/ub/ujur/l-skjema/", "L-skjema")
-    text(""", bibliotekets klassifikasjonssystem. Listen under er sortert etter hovedemnet de er stilt opp på i biblioteket.""")
+    text(""", bibliotekets klassifikasjonssystem.
+        Listen under er sortert etter hovedemnet de er stilt opp på i biblioteket.""")
     doc.stag("p")
     text("""En del e-bøker ligger i databaser og er ikke synlige i Oria. Se siden vår for """)
     link("https://www.ub.uio.no/fag/jus/jus/juridiske-eboker.html", "juridiske e-bøker")
     text(""" for oversikt over baser som inneholder e-bøker.
          Videre er det viktig å huske på at e-bøker innen andre fag, ikke er synlige i dette nyhetsbrevet.""")
     doc.stag("p")
-    text("""NB husk å  skru på HTML-visning i Outlook. Tilbakemeldinger, endringsforslag m.m. kan sendes til """)
-    link("s.e.ostbye@ub.uio.no", "Sigrid Elisabeth Østbye")
+    text("""NB! Det anbefales å skru på HTML-visning i Outlook.
+        Tilbakemeldinger, endringsforslag m.m. kan sendes til """)
+    link("mailto:s.e.ostbye@ub.uio.no", "Sigrid Elisabeth Østbye")
+    text(".")
 
     heading("Nye e-bøker", level="h2")
     fetch_books("https://ub-tilvekst.uio.no/lists/72.json?days=%d" % options.days)
