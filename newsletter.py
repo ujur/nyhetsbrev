@@ -12,6 +12,7 @@ import sys
 import time
 import pprint
 import subprocess
+import contextlib
 # Install dependencies if required
 try:
     import feedparser
@@ -78,51 +79,50 @@ def fetch_feeds(URLs,
     # pprint.pp(feeds[0])
     for feed in feeds:
         channel_title = feed['channel']['title'].replace('Table of Contents', '')
-        heading(channel_title, level='h2')
+        with accordion_menu(channel_title, level='h3'):
+            if options.verbose:
+                print(unidecode(channel_title))  # to console, for debugging
+            items = feed["items"]
+            # remove duplicate items by URL
+            items_seen = set()
 
-        if options.verbose:
-            print(unidecode(channel_title))  # to console, for debugging
-        items = feed["items"]
-        # remove duplicate items by URL
-        items_seen = set()
+            if filter_title:
+                items = [item for item in items if filter_title in item["title"]]
 
-        if filter_title:
-            items = [item for item in items if filter_title in item["title"]]
+            # fix prism data
+            # for item in items:
+            #     if 'prism_publicationdate' in item and not 'published' in item:
+            #         date = item['prism_publicationdate']
+            #         item['published'] = date
+            #         item['published_parsed'] = feedparser._parse_date(date)
 
-        # fix prism data
-        # for item in items:
-        #     if 'prism_publicationdate' in item and not 'published' in item:
-        #         date = item['prism_publicationdate']
-        #         item['published'] = date
-        #         item['published_parsed'] = feedparser._parse_date(date)
+            # sort items
+            if len(items) > 1:
+                if 'published' in items[0]:
+                    items.sort(key=lambda x: (x["published"], x["title"]), reverse=True)
+                    # filter by start_date if available
+                    if start_date:
+                        items = [item for item in items
+                                 if not item['published_parsed'] or datetime.date.fromtimestamp(time.mktime(item['published_parsed'])) >= start_date]
 
-        # sort items
-        if len(items) > 1:
-            if 'published' in items[0]:
-                items.sort(key=lambda x: (x["published"], x["title"]), reverse=True)
-                # filter by start_date if available
-                if start_date:
-                    items = [item for item in items
-                             if not item['published_parsed'] or datetime.date.fromtimestamp(time.mktime(item['published_parsed'])) >= start_date]
-
-        # for item in items[:item_count]:
-        for item in items:
-            if item['link'] not in items_seen:
-                items_seen.add(item['link'])
-                heading(item["title"])
-    #             print(item["date"])
-    #             print(item["date_parsed"])
-                if 'summary' in item:
-                    doc.asis(item['summary'])
-                # if "content" in item:
-                    # get description without href
-                    # doc.asis(item['content'][1]['value'])
-                    # print(item.summary)
-                if "published" in item:
-                    text("Publisert: %s" % item["published"])
-                with tag('p'):
-                    link(f'https://login.ezproxy.uio.no/login?url={item["link"]}',
-                         "Fulltekst")
+            # for item in items[:item_count]:
+            for item in items:
+                if item['link'] not in items_seen:
+                    items_seen.add(item['link'])
+                    heading(item["title"], level='h4')
+        #             print(item["date"])
+        #             print(item["date_parsed"])
+                    if 'summary' in item:
+                        doc.asis(item['summary'])
+                    # if "content" in item:
+                        # get description without href
+                        # doc.asis(item['content'][1]['value'])
+                        # print(item.summary)
+                    if "published" in item:
+                        text("Publisert: %s" % item["published"])
+                    with tag('p'):
+                        link(f'https://login.ezproxy.uio.no/login?url={item["link"]}',
+                             "Fulltekst")
 
 
 def fetch_norart():
@@ -146,12 +146,28 @@ def fetch_norart():
                 doc.stag("br")
 
 
-def heading(title, level="h3"):
+def heading(title, level="h4"):
     """
-    Add heading to the accumulated  HTML
+    Add heading to the accumulated  HTML.
+
+    Params:
+        title: The text of the heading
+        level: h1, h2, h3...
     """
     with tag(level):
         text(title)
+
+
+@contextlib.contextmanager
+def accordion_menu(title, level):
+    '''
+    Add content as collapsible accordion menu
+    https://www.uio.no/for-ansatte/arbeidsstotte/kommunikasjon/nettarbeid/veiledninger/komponenter/trekkspill.html
+    '''
+    with tag(level, klass='accordion'):
+        text(title)
+    with tag('div', klass='accordion-content'):
+        yield
 
 
 def link(target, description):
@@ -225,7 +241,6 @@ def fetch_books(URL, partitions=None):
     """
     Fetch books from UB tilvekst
     """
-
     def include_book(book):
         try:
             publication_date = book.get('publication_date')
@@ -238,6 +253,10 @@ def fetch_books(URL, partitions=None):
             if options.verbose:
                 print("Error for title:", book["title"], "link:", book["self_link"], e)
             return True
+
+    def list_books_from(books):
+        for book in books:
+            list_book(book)
 
     response = requests.get(URL)
     books = json.loads(response.text)
@@ -256,14 +275,14 @@ def fetch_books(URL, partitions=None):
             if current:
                 # Remove current partition from books
                 books = [item for item in books if item not in current]
-                heading(description)
-                for book in current:
-                    list_book(book)
+                with accordion_menu(description, level='h3'):
+                    list_books_from(current)
     if books:
         if partitions:
-            heading("Andre fag og skjønnlitteratur")
-        for book in books:
-            list_book(book)
+            with accordion_menu('Andre fag og skjønnlitteratur', 'h3'):
+                list_books_from(books)
+        else:
+            list_books_from(books)
 
 
 def fetch_all():
@@ -290,22 +309,22 @@ def fetch_all():
     link("mailto:s.e.ostbye@ub.uio.no", "Sigrid Elisabeth Østbye")
     text(".")
 
-    heading("Nye e-bøker", level="h2")
-    fetch_books("https://ub-tilvekst.uio.no/lists/72.json?days=%d" % options.days)
+    with accordion_menu("Nye e-bøker", level="h2"):
+        fetch_books("https://ub-tilvekst.uio.no/lists/72.json?days=%d" % options.days)
 
-#     heading("Nye e-bøker fra Cambridge", level="h2")
+#     accordion_menu("Nye e-bøker fra Cambridge", level="h2")
 #     fetch_feeds(["https://www.cambridge.org/core/rss/subject/id/7C9FB6788DD8D7E6696263BC774F4D5B"], item_count=-1, filter_title='[Book]')
 
-#     heading("Nye e-bøker fra Springer", level="h2")
+#     accordion_menu("Nye e-bøker fra Springer", level="h2")
 #     fetch_feeds(["https://link.springer.com/search.rss?facet-discipline=%22Law%22&showAll=false&facet-language=%22En%22&facet-content-type=%22Book%22"], item_count=-1)
 
-    heading("Nye trykte bøker", level="h2")
-    fetch_books(
-        "https://ub-tilvekst.uio.no/lists/68.json?days=%d" %
-        options.days, partitions=L_skjema)
+    with accordion_menu("Nye trykte bøker", level="h2"):
+        fetch_books(
+            "https://ub-tilvekst.uio.no/lists/68.json?days=%d" %
+            options.days, partitions=L_skjema)
 
-    heading("Tidsskrifter", level="h2")
-    fetch_feeds(idunn_URLs)
+    with accordion_menu("Tidsskrifter", level="h2"):
+        fetch_feeds(idunn_URLs)
     # fetch_norart()
     #fetch_feeds(["https://www.cambridge.org/core/rss/subject/id/7C9FB6788DD8D7E6696263BC774F4D5B"], item_count=-1, filter_title='[Article]')
 
