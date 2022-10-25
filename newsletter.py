@@ -16,7 +16,6 @@ import subprocess
 try:
     import feedparser
     import requests
-    from html2text import html2text
     from yattag import Doc, indent
     from bs4 import BeautifulSoup
     from unidecode import unidecode
@@ -38,10 +37,6 @@ def get_arguments():
         type=int,
         default="16")
     return parser.parse_args()
-
-
-def get_plaintext(html):
-    return html2text(html).strip()
 
 
 idunn_URLs = [
