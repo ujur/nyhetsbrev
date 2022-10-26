@@ -125,27 +125,6 @@ def fetch_feeds(URLs,
                              "Fulltekst")
 
 
-def fetch_norart():
-    URLs = [
-        #         "http://www.nb.no/baser/norart/trip.php?_b=norart&issn-ntid=1399-140X",
-        "http://www.nb.no/baser/norart/trip.php?_b=norart&issn-ntid=0105-1121",
-    ]
-
-    for URL in URLs:
-        page = requests.get(URL)
-        soup = BeautifulSoup(page.text, "lxml")
-        items = soup.findAll('tr', {"class": "zebra"})
-        formatted = [[data.text.replace("\xa0", " ").strip()
-                      for data in item.find_all('td')[1:4]] for item in items]
-        # find title  of the last issue
-        last_issue = formatted[0][2]
-        heading(last_issue)
-        for item in formatted:
-            if item[2] == last_issue:
-                text("%s (%s)" % (item[0], item[1]))
-                doc.stag("br")
-
-
 def heading(title, level="h4"):
     """
     Add heading to the accumulated  HTML.
@@ -325,7 +304,6 @@ def fetch_all():
 
     with accordion_menu("Tidsskrifter", level="h2"):
         fetch_feeds(idunn_URLs)
-    # fetch_norart()
     #fetch_feeds(["https://www.cambridge.org/core/rss/subject/id/7C9FB6788DD8D7E6696263BC774F4D5B"], item_count=-1, filter_title='[Article]')
 
 
