@@ -78,10 +78,12 @@ def fetch_feeds(URLs,
     feeds = [feedparser.parse(URL) for URL in URLs]
     # pprint.pp(feeds[0])
     for feed in feeds:
-        channel_title = feed['channel']['title'].replace('Table of Contents', '')
-        with accordion_menu(channel_title, level='h3'):
+        channel_title = feed['channel']['title']  # .replace('Table of Contents', '')
+        # get only the journal title from channel_title
+        journal_title = channel_title.split(':')[1]
+        with accordion_menu(journal_title, level='h3'):
             if options.verbose:
-                print(unidecode(channel_title))  # to console, for debugging
+                print(unidecode(journal_title))  # to console, for debugging
             items = feed["items"]
             # remove duplicate items by URL
             items_seen = set()
