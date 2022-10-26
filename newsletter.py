@@ -107,24 +107,21 @@ def fetch_feeds(URLs,
                         items = [item for item in items
                                  if not item['published_parsed'] or datetime.date.fromtimestamp(time.mktime(item['published_parsed'])) >= start_date]
 
-            # for item in items[:item_count]:
-            for item in items:
-                if item['link'] not in items_seen:
-                    items_seen.add(item['link'])
-                    heading(item["title"], level='h4')
-        #             print(item["date"])
-        #             print(item["date_parsed"])
-                    if 'summary' in item:
-                        doc.asis(item['summary'])
-                    # if "content" in item:
-                        # get description without href
-                        # doc.asis(item['content'][1]['value'])
-                        # print(item.summary)
-                    if "published" in item:
-                        text("Publisert: %s" % item["published"])
-                    with tag('p'):
-                        link(f'https://login.ezproxy.uio.no/login?url={item["link"]}',
-                             "Fulltekst")
+            with tag('ul'):
+                for item in items:
+                    with tag('li'):
+                        if item['link'] not in items_seen:
+                            items_seen.add(item['link'])
+                            link(
+                                f'https://login.ezproxy.uio.no/login?url={item["link"]}',
+                                item['title'])
+                            doc.stag('br')
+                #             print(item["date"])
+                #             print(item["date_parsed"])
+                            if 'summary' in item:
+                                text(item['summary'].replace('<br />', ''))
+                            if "published" in item:
+                                text("Publisert: %s" % item["published"])
 
 
 def heading(title, level="h4"):
