@@ -291,10 +291,10 @@ def fetch_all():
     with accordion_menu("Nye e-bøker", level="h2"):
         fetch_books("https://ub-tilvekst.uio.no/lists/72.json?days=%d" % options.days)
 
-#     accordion_menu("Nye e-bøker fra Cambridge", level="h2")
+#     with accordion_menu("Nye e-bøker fra Cambridge", level="h2"):
 #     fetch_feeds(["https://www.cambridge.org/core/rss/subject/id/7C9FB6788DD8D7E6696263BC774F4D5B"], item_count=-1, filter_title='[Book]')
 
-#     accordion_menu("Nye e-bøker fra Springer", level="h2")
+#     with accordion_menu("Nye e-bøker fra Springer", level="h2"):
 #     fetch_feeds(["https://link.springer.com/search.rss?facet-discipline=%22Law%22&showAll=false&facet-language=%22En%22&facet-content-type=%22Book%22"], item_count=-1)
 
     with accordion_menu("Nye trykte bøker", level="h2"):
