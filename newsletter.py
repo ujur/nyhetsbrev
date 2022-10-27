@@ -109,11 +109,12 @@ def fetch_feeds(URLs,
 
             with tag('ul'):
                 for item in items:
+                    link = item['link']
                     with tag('li'):
-                        if item['link'] not in items_seen:
-                            items_seen.add(item['link'])
-                            link(
-                                f'https://login.ezproxy.uio.no/login?url={item["link"]}',
+                        if link not in items_seen:
+                            items_seen.add(link)
+                            make_link(
+                                f'https://login.ezproxy.uio.no/login?url={link}',
                                 item['title'])
                             doc.stag('br')
                 #             print(item["date"])
@@ -141,6 +142,10 @@ def accordion_menu(title, level):
     '''
     Add content as collapsible accordion menu
     https://www.uio.no/for-ansatte/arbeidsstotte/kommunikasjon/nettarbeid/veiledninger/komponenter/trekkspill.html
+
+    Params:
+        title: The text of the heading
+        level: h1, h2, h3...
     '''
     with tag(level, klass='accordion'):
         text(title)
@@ -148,14 +153,14 @@ def accordion_menu(title, level):
         yield
 
 
-def link(target, description):
+def make_link(target, description):
     "Add link to the accumulated HTML"
     with tag("a", href=target):
         text(description)
 
 
 def list_book(book):
-    link(book["primo_link"], book["title"])
+    make_link(book["primo_link"], book["title"])
     doc.stag("br")
     if book["author"]:
         text(book["author"])
@@ -273,18 +278,20 @@ def fetch_all():
     text("""De trykte bøkene er sortert på overordnet emne ut fra deres plassering i biblioteket.
         En bok kan ha flere emner og klassifikasjoner.
         Overskriftene og inndelingen tar utgangspunkt i """)
-    link("http://app.uio.no/ub/ujur/l-skjema/", "L-skjema")
+    make_link("http://app.uio.no/ub/ujur/l-skjema/", "L-skjema")
     text(""", bibliotekets klassifikasjonssystem.
         Listen under er sortert etter hovedemnet de er stilt opp på i biblioteket.""")
     doc.stag("p")
     text("""En del e-bøker ligger i databaser og er ikke synlige i Oria. Se siden vår for """)
-    link("https://www.ub.uio.no/fag/jus/jus/juridiske-eboker.html", "juridiske e-bøker")
+    make_link(
+        "https://www.ub.uio.no/fag/jus/jus/juridiske-eboker.html",
+        "juridiske e-bøker")
     text(""" for oversikt over baser som inneholder e-bøker.
          Videre er det viktig å huske på at e-bøker innen andre fag, ikke er synlige i dette nyhetsbrevet.""")
     doc.stag("p")
     text("""NB! Det anbefales å skru på HTML-visning i Outlook.
         Tilbakemeldinger, endringsforslag m.m. kan sendes til """)
-    link("mailto:s.e.ostbye@ub.uio.no", "Sigrid Elisabeth Østbye")
+    make_link("mailto:s.e.ostbye@ub.uio.no", "Sigrid Elisabeth Østbye")
     text(".")
 
     with accordion_menu("Nye e-bøker", level="h2"):
