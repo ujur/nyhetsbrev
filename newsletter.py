@@ -31,7 +31,6 @@ except ImportError:
 def get_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument("-v", "--verbose", help="verbose output", action="store_true")
-    parser.add_argument("-out", help="output file name", default=f'{str(today)}.html')
     parser.add_argument(
         "-days",
         help="number of days to include",
@@ -317,6 +316,7 @@ if __name__ == '__main__':
     print('Python' + sys.version)
     today = datetime.date.today()
     options = get_arguments()
+    out_file = f'{str(today)}.html'
     start_date = today - datetime.timedelta(options.days)
 #     first = today.replace(day=1)
 #     lastMonth = first - datetime.timedelta(days=32)
@@ -329,9 +329,5 @@ if __name__ == '__main__':
             fetch_all()
 
     result = indent(doc.getvalue())
-
-    if options.out:
-        with open(options.out, "w", encoding="utf-8") as outFile:
-            print(result, file=outFile)
-    else:
-        print(result)
+    with open(out_file, "w", encoding="utf-8") as out:
+        print(result, file=out)
