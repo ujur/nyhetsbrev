@@ -5,8 +5,7 @@ Script for making lists of newly acquired books and articles
 """
 
 import json
-from operator import itemgetter, attrgetter, methodcaller
-import argparse
+from operator import itemgetter
 import datetime
 import sys
 import time
@@ -26,17 +25,6 @@ except ImportError:
     print("Software installed, restart program. Exiting in 5 seconds.")
     time.sleep(5)
     exit(0)
-
-
-def get_arguments():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-v", "--verbose", help="verbose output", action="store_true")
-    parser.add_argument(
-        "-days",
-        help="number of days to include",
-        type=int,
-        default="16")
-    return parser.parse_args()
 
 
 idunn_URLs = [
@@ -81,8 +69,7 @@ def fetch_feeds(URLs,
         # get only the journal title from channel_title
         journal_title = channel_title.split(':')[1]
         with accordion_menu(journal_title, level='h3'):
-            if options.verbose:
-                print(unidecode(journal_title))  # to console, for debugging
+            print(unidecode(journal_title))  # to console, for debugging
             items = feed["items"]
             # remove duplicate items by URL
             items_seen = set()
@@ -102,9 +89,11 @@ def fetch_feeds(URLs,
                 if 'published' in items[0]:
                     items.sort(key=lambda x: (x["published"], x["title"]), reverse=True)
                     # filter by start_date if available
-                    if start_date:
-                        items = [item for item in items
-                                 if not item['published_parsed'] or datetime.date.fromtimestamp(time.mktime(item['published_parsed'])) >= start_date]
+                    # if start_date:
+                    #     items = [item for item in items
+                    # if not item['published_parsed'] or
+                    # datetime.date.fromtimestamp(time.mktime(item['published_parsed']))
+                    # >= start_date]
 
             with tag('ul'):
                 for item in items:
@@ -232,8 +221,7 @@ def fetch_books(URL, partitions=None):
                      # and book["permanent_call_number"]
                      and book["location_name"] not in ignore_collections))
         except Exception as e:
-            if options.verbose:
-                print("Error for title:", book["title"], "link:", book["self_link"], e)
+            print("Error for title:", book["title"], "link:", book["self_link"], e)
             return True
 
     def list_books_from(books):
@@ -267,7 +255,7 @@ def fetch_books(URL, partitions=None):
             list_books_from(books)
 
 
-def fetch_all():
+def fetch_all(days):
     heading("Nyhetsbrev fra Juridisk bibliotek", level="h1")
     # Boilerplate intro
     text("""I dette nyhetsbrevet finner du nye bøker og
@@ -294,7 +282,7 @@ def fetch_all():
     text(".")
 
     with accordion_menu("Nye e-bøker", level="h2"):
-        fetch_books("https://ub-tilvekst.uio.no/lists/72.json?days=%d" % options.days)
+        fetch_books("https://ub-tilvekst.uio.no/lists/72.json?days=%d" % days)
 
 #     with accordion_menu("Nye e-bøker fra Cambridge", level="h2"):
 #     fetch_feeds(["https://www.cambridge.org/core/rss/subject/id/7C9FB6788DD8D7E6696263BC774F4D5B"], item_count=-1, filter_title='[Book]')
@@ -305,29 +293,33 @@ def fetch_all():
     with accordion_menu("Nye trykte bøker", level="h2"):
         fetch_books(
             "https://ub-tilvekst.uio.no/lists/68.json?days=%d" %
-            options.days, partitions=L_skjema)
+            days, partitions=L_skjema)
 
     with accordion_menu("Tidsskrifter", level="h2"):
         fetch_feeds(idunn_URLs)
     #fetch_feeds(["https://www.cambridge.org/core/rss/subject/id/7C9FB6788DD8D7E6696263BC774F4D5B"], item_count=-1, filter_title='[Article]')
 
 
-if __name__ == '__main__':
+def make_newsletter(days=31):
     print('Python' + sys.version)
     today = datetime.date.today()
-    options = get_arguments()
     out_file = f'{str(today)}.html'
-    start_date = today - datetime.timedelta(options.days)
+    start_date = today - datetime.timedelta(days)
 #     first = today.replace(day=1)
 #     lastMonth = first - datetime.timedelta(days=32)
 #     print(lastMonth.strftime("%Y%m%d"))
+    global doc, tag, text
     doc, tag, text = Doc().tagtext()
     with tag('html'):
         with tag('head'):
             doc.stag('meta', charset='utf-8')
         with tag('body'):
-            fetch_all()
+            fetch_all(days)
 
     result = indent(doc.getvalue())
     with open(out_file, "w", encoding="utf-8") as out:
         print(result, file=out)
+
+
+if __name__ == '__main__':
+    make_newsletter()
