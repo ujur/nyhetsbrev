@@ -3,8 +3,10 @@ Script for generating HTML newsletters
 
 ## Setup
 
-git clone https://github.com/ujur/nyhetsbrev.git
-git config --global --add safe.directory /home/jupyter/nyhetsbrev
+In Jupyter Notebook/JupyterHub, run:
+
+    !git clone https://github.com/ujur/nyhetsbrev.git
+    !git config --global --add safe.directory /home/jupyter/nyhetsbrev
 
 ## Running
 
