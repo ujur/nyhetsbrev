@@ -8,9 +8,7 @@ import json
 from operator import itemgetter
 import datetime
 import sys
-import time
 import pprint
-import subprocess
 import contextlib
 # Install dependencies if required
 try:
@@ -20,11 +18,7 @@ try:
     from bs4 import BeautifulSoup
     from unidecode import unidecode
 except ImportError:
-    subprocess.check_call([sys.executable, '-m', 'pip',
-                           'install', '-r', 'requirements.txt'])
-    print("Software installed, restart program. Exiting in 5 seconds.")
-    time.sleep(5)
-    exit(0)
+    print('Please install requirements with the command "pip install -r requirements.txt"')
 
 
 idunn_URLs = [
