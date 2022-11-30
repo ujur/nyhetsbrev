@@ -8,18 +8,23 @@ import json
 from operator import itemgetter
 import datetime
 import sys
-import pprint
 import contextlib
 # Install dependencies if required
 try:
     import feedparser
     import requests
     from yattag import Doc, indent
-    from bs4 import BeautifulSoup
+    # from bs4 import BeautifulSoup
     from unidecode import unidecode
 except ImportError:
     print('Please install requirements with the command "pip install -r requirements.txt"')
 
+# Module level global variables
+
+# HTML document output by yattag, initialized in make_newsletter()
+doc = None
+tag = None
+text = None
 
 idunn_URLs = [
     'https://www.idunn.no/action/showFeed?type=etoc&feed=rss&jc=arbeidsrett',
@@ -298,7 +303,7 @@ def make_newsletter(days=31):
     print('Python' + sys.version)
     today = datetime.date.today()
     out_file = f'{str(today)}.html'
-    start_date = today - datetime.timedelta(days)
+    # start_date = today - datetime.timedelta(days)
 #     first = today.replace(day=1)
 #     lastMonth = first - datetime.timedelta(days=32)
 #     print(lastMonth.strftime("%Y%m%d"))
