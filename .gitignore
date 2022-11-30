@@ -7,3 +7,4 @@ temp*
 .settings/
 *.html
 .ipynb_checkpoints
+*.pickle

@@ -9,6 +9,11 @@ from operator import itemgetter
 import datetime
 import sys
 import contextlib
+from pathlib import Path
+try:
+    import cPickle as pickle
+except BaseException:
+    import pickle
 # Install dependencies if required
 try:
     import feedparser
@@ -51,7 +56,7 @@ idunn_URLs = [
 
 def fetch_feeds(URLs,
                 # item_count=1,
-                filter_title=None):
+                ):
     """
     Fetch a list of RSS feeds.
     The content of each feed is output to the results file.
@@ -59,46 +64,56 @@ def fetch_feeds(URLs,
     Params:
         URLs: a list of URL strings
         item_count: the number of items to fetch from each URL
-        filter_title: include only items containing this string in the title
     """
     feeds = [feedparser.parse(URL) for URL in URLs]
+    # Keep a record of previously seen items (URLs) for de-duplication
+    filename = 'papers-seen.pickle'
+    file_path = Path(filename)
+    if file_path.is_file():
+        print('loading previous papers from', filename)
+        with file_path.open('rb') as file:
+            items_seen = pickle.load(file)
+    else:
+        items_seen = set()
+
     # pprint.pp(feeds[0])
     for feed in feeds:
         channel_title = feed['channel']['title']  # .replace('Table of Contents', '')
         # get only the journal title from channel_title
         journal_title = channel_title.split(':')[1]
-        with accordion_menu(journal_title, level='h3'):
-            print(unidecode(journal_title))  # to console, for debugging
-            items = feed["items"]
-            # remove duplicate items by URL
-            items_seen = set()
+        items = feed["items"]
+        # Filter out seen items
+        items = [item for item in items if item['link'] not in items_seen]
+        if items:
+            with accordion_menu(journal_title, level='h3'):
+                print(unidecode(journal_title))  # to console, for debugging
 
-            if filter_title:
-                items = [item for item in items if filter_title in item["title"]]
+                # fix prism data
+                # for item in items:
+                #     if 'prism_publicationdate' in item and not 'published' in item:
+                #         date = item['prism_publicationdate']
+                #         item['published'] = date
+                #         item['published_parsed'] = feedparser._parse_date(date)
 
-            # fix prism data
-            # for item in items:
-            #     if 'prism_publicationdate' in item and not 'published' in item:
-            #         date = item['prism_publicationdate']
-            #         item['published'] = date
-            #         item['published_parsed'] = feedparser._parse_date(date)
+                # sort items
+                if len(items) > 1:
+                    if 'published' in items[0]:
+                        items.sort(
+                            key=lambda x: (
+                                x["published"],
+                                x["title"]),
+                            reverse=True)
+                        # filter by start_date if available
+                        # if start_date:
+                        #     items = [item for item in items
+                        # if not item['published_parsed'] or
+                        # datetime.date.fromtimestamp(time.mktime(item['published_parsed']))
+                        # >= start_date]
 
-            # sort items
-            if len(items) > 1:
-                if 'published' in items[0]:
-                    items.sort(key=lambda x: (x["published"], x["title"]), reverse=True)
-                    # filter by start_date if available
-                    # if start_date:
-                    #     items = [item for item in items
-                    # if not item['published_parsed'] or
-                    # datetime.date.fromtimestamp(time.mktime(item['published_parsed']))
-                    # >= start_date]
-
-            with tag('ul'):
-                for item in items:
-                    link = item['link']
-                    with tag('li'):
-                        if link not in items_seen:
+                with tag('ul'):
+                    for item in items:
+                        link = item['link']
+                        with tag('li'):
                             items_seen.add(link)
                             make_link(
                                 f'https://login.ezproxy.uio.no/login?url={link}',
@@ -110,6 +125,11 @@ def fetch_feeds(URLs,
                                 text(item['summary'].replace('<br />', ''))
                             if "published" in item:
                                 text("Publisert: %s" % item["published"])
+
+    # Save the record of previously seen items (URLs) for de-duplication
+    with file_path.open('wb') as file:
+        print('saving seen papers to', filename)
+        pickle.dump(items_seen, file)
 
 
 def heading(title, level="h4"):
@@ -264,9 +284,6 @@ def fetch_all(days):
     with accordion_menu("Nye e-bøker", level="h2"):
         fetch_books("https://ub-tilvekst.uio.no/lists/72.json?days=%d" % days)
 
-#     with accordion_menu("Nye e-bøker fra Cambridge", level="h2"):
-#     fetch_feeds(["https://www.cambridge.org/core/rss/subject/id/7C9FB6788DD8D7E6696263BC774F4D5B"], item_count=-1, filter_title='[Book]')
-
 #     with accordion_menu("Nye e-bøker fra Springer", level="h2"):
 #     fetch_feeds(["https://link.springer.com/search.rss?facet-discipline=%22Law%22&showAll=false&facet-language=%22En%22&facet-content-type=%22Book%22"], item_count=-1)
 
@@ -277,7 +294,6 @@ def fetch_all(days):
 
     with accordion_menu("Tidsskrifter", level="h2"):
         fetch_feeds(idunn_URLs)
-    #fetch_feeds(["https://www.cambridge.org/core/rss/subject/id/7C9FB6788DD8D7E6696263BC774F4D5B"], item_count=-1, filter_title='[Article]')
 
 
 def make_newsletter(days=31):
