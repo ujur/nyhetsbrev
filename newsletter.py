@@ -8,6 +8,7 @@ import datetime
 import sys
 import contextlib
 from pathlib import Path
+from collections import defaultdict
 try:
     import cPickle as pickle
 except BaseException:
@@ -230,6 +231,8 @@ L_skjema = [("Festskrift", 19, 19),
 
 
 def list_books_from(books):
+    # Order by title
+    books = sorted(books, key=lambda x: x.get('title', ''))
     for book in books:
         list_book(book)
 
@@ -255,8 +258,6 @@ def fetch_printed_books(URL, partitions=None):
     # Only list books that are catalogued
     print('Number of books before filtering:', len(books))
     books = [book for book in books if include_book(book)]
-    # Order by title
-    books = sorted(books, key=lambda x: x.get('title', ''))
     print('Number of books after filtering:', len(books))
 
     if partitions:
@@ -281,11 +282,19 @@ def fetch_ebooks(URL):
     Fetch e-books from UB tilvekst
     """
     books = requests.get(URL).json()
-    # Order by title
-    books = sorted(books, key=lambda x: x.get('title', ''))
     print('Number of e-books:', len(books))
-
-    list_books_from(books)
+    series2books = defaultdict(list)
+    for book in books:
+        series2books[book.get('series', ' Ingen serie')].append(book)
+        # the leading space in ' Ingen serie' is a hack to make it sort 1st in the list
+    # Fix None key
+    series2books[' Ingen serie'].extend(series2books.pop(None))
+    # print(series2books.keys())
+    series_sorted = sorted(series2books.keys())
+    for series in series_sorted:
+        books = series2books[series]
+        with accordion_menu(f'{series}', 'h3'):
+            list_books_from(books)
 
 
 def fetch_all(days):
