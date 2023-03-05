@@ -231,7 +231,12 @@ L_skjema = [("Festskrift", 19, 19),
             ("Kirkerett", 1236, 1287)]
 
 
-def fetch_books(URL, partitions=None):
+def list_books_from(books):
+    for book in books:
+        list_book(book)
+
+
+def fetch_printed_books(URL, partitions=None):
     """
     Fetch books from UB tilvekst
     """
@@ -247,12 +252,7 @@ def fetch_books(URL, partitions=None):
             print("Error for title:", book["title"], "link:", book["self_link"], e)
             return True
 
-    def list_books_from(books):
-        for book in books:
-            list_book(book)
-
-    response = requests.get(URL)
-    books = json.loads(response.text)
+    books = requests.get(URL).json()
     ignore_collections = ["UJUR Kontor", "UJUR Skranken - Ikke til hjemlån"]
     current_year = datetime.datetime.now().year
     # Only list books that are catalogued
@@ -278,17 +278,29 @@ def fetch_books(URL, partitions=None):
             list_books_from(books)
 
 
+def fetch_ebooks(URL):
+    """
+    Fetch e-books from UB tilvekst
+    """
+    books = requests.get(URL).json()
+    # Order by title
+    books = sorted(books, key=itemgetter("title"))
+    print('Number of e-books:', len(books))
+
+    list_books_from(books)
+
+
 def fetch_all(days):
     heading('Nyheter på Juridisk bibliotek', level='h1')
 
     with accordion_menu("Nye e-bøker", level="h2"):
-        fetch_books("https://ub-tilvekst.uio.no/lists/72.json?days=%d" % days)
+        fetch_ebooks("https://ub-tilvekst.uio.no/lists/72.json?days=%d" % days)
 
 #     with accordion_menu("Nye e-bøker fra Springer", level="h2"):
 #     fetch_feeds(["https://link.springer.com/search.rss?facet-discipline=%22Law%22&showAll=false&facet-language=%22En%22&facet-content-type=%22Book%22"], item_count=-1)
 
     with accordion_menu("Nye trykte bøker", level="h2"):
-        fetch_books(
+        fetch_printed_books(
             "https://ub-tilvekst.uio.no/lists/68.json?days=%d" %
             days, partitions=L_skjema)
 
