@@ -4,8 +4,6 @@
 Script for making lists of newly acquired books and articles
 """
 
-import json
-from operator import itemgetter
 import datetime
 import sys
 import contextlib
@@ -243,11 +241,10 @@ def fetch_printed_books(URL, partitions=None):
     def include_book(book):
         try:
             publication_date = book.get('publication_date')
-            return (is_ebook(book)
-                    or
-                    (publication_date > current_year - 3
-                     # and book["permanent_call_number"]
-                     and book["location_name"] not in ignore_collections))
+            return (publication_date > current_year - 3
+                    # and book["permanent_call_number"]
+                    and book["location_name"] not in ignore_collections
+                    and book['title'])
         except Exception as e:
             print("Error for title:", book["title"], "link:", book["self_link"], e)
             return True
@@ -256,10 +253,11 @@ def fetch_printed_books(URL, partitions=None):
     ignore_collections = ["UJUR Kontor", "UJUR Skranken - Ikke til hjemlån"]
     current_year = datetime.datetime.now().year
     # Only list books that are catalogued
+    print('Number of books before filtering:', len(books))
     books = [book for book in books if include_book(book)]
     # Order by title
-    books = sorted(books, key=itemgetter("title"))
-    print('Number of books:', len(books))
+    books = sorted(books, key=lambda x: x.get('title', ''))
+    print('Number of books after filtering:', len(books))
 
     if partitions:
         for partition in partitions:
@@ -284,7 +282,7 @@ def fetch_ebooks(URL):
     """
     books = requests.get(URL).json()
     # Order by title
-    books = sorted(books, key=itemgetter("title"))
+    books = sorted(books, key=lambda x: x.get('title', ''))
     print('Number of e-books:', len(books))
 
     list_books_from(books)
