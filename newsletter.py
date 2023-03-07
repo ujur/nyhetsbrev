@@ -277,6 +277,22 @@ def fetch_printed_books(URL, partitions=None):
             list_books_from(books)
 
 
+def get_series(book):
+    '''
+    Get the series from a book, and do some cleaning on the result
+    '''
+    # pattern =re.compile('pattern')
+    series = book.get('series')
+    # the leading space in ' Ingen serie' is a hack to make it sort 1st in the list
+    series = series.split(';')[0] if series else ' Ingen serie'
+    # Remove trailing string 'Ser.'
+    series = series.removesuffix('Ser.')
+    if 'criminol' in series.lower():
+        # merge criminology series
+        series = 'Criminology'
+    return series
+
+
 def fetch_ebooks(URL):
     """
     Fetch e-books from UB tilvekst
@@ -285,11 +301,8 @@ def fetch_ebooks(URL):
     print('Number of e-books:', len(books))
     series2books = defaultdict(list)
     for book in books:
-        series2books[book.get('series', ' Ingen serie')].append(book)
-        # the leading space in ' Ingen serie' is a hack to make it sort 1st in the list
-    # Fix None key
-    series2books[' Ingen serie'].extend(series2books.pop(None))
-    # print(series2books.keys())
+        series2books[get_series(book)].append(book)
+
     series_sorted = sorted(series2books.keys())
     for series in series_sorted:
         books = series2books[series]
