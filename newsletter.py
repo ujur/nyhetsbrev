@@ -281,15 +281,14 @@ def get_series(book):
     '''
     Get the series from a book, and do some cleaning on the result
     '''
-    # pattern =re.compile('pattern')
     series = book.get('series')
-    # the leading space in ' Ingen serie' is a hack to make it sort 1st in the list
-    series = series.split(';')[0] if series else ' Ingen serie'
-    # Remove trailing string 'Ser.'
-    series = series.removesuffix('Ser.')
-    if 'criminol' in series.lower():
-        # merge criminology series
-        series = 'Criminology'
+    if series:
+        series = series.split(';')[0]
+        # Remove trailing string 'Ser.'
+        series = series.removesuffix('Ser.')
+        if 'criminol' in series.lower():
+            # merge criminology series
+            series = 'Criminology'
     return series
 
 
@@ -303,11 +302,17 @@ def fetch_ebooks(URL):
     for book in books:
         series2books[get_series(book)].append(book)
 
+    # Handle books without a series separately
+    no_series = series2books.pop(None)
+
     series_sorted = sorted(series2books.keys())
     for series in series_sorted:
         books = series2books[series]
         with accordion_menu(f'{series}', 'h3'):
             list_books_from(books)
+    # Handle books without a series separately
+    with accordion_menu('Uten kategori', 'h3'):
+        list_books_from(no_series)
 
 
 def fetch_all(days):
