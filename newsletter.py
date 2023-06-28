@@ -22,6 +22,7 @@ try:
     from unidecode import unidecode
 except ImportError:
     print('Please install requirements with the command "pip install -r requirements.txt"')
+    exit()
 
 # Module level global variables
 
@@ -292,27 +293,38 @@ def get_series(book):
     return series
 
 
+def get_year(book):
+    '''
+    Get the publication year of the book
+    '''
+    date = book.get('publication_date')
+    # Currently, the date only contains the year. If this changes, extract the year here
+    # if date:
+    # print(date)
+    return date
+
+
 def fetch_ebooks(URL):
     """
     Fetch e-books from UB tilvekst
     """
     books = requests.get(URL).json()
     print('Number of e-books:', len(books))
-    series2books = defaultdict(list)
+    year2books = defaultdict(list)
     for book in books:
-        series2books[get_series(book)].append(book)
+        year2books[get_year(book)].append(book)
 
-    # Handle books without a series separately
-    no_series = series2books.pop(None)
+    # Handle books without a year separately
+    no_year = year2books.pop(None)
 
-    series_sorted = sorted(series2books.keys())
-    for series in series_sorted:
-        books = series2books[series]
-        with accordion_menu(f'{series}', 'h3'):
+    years_sorted = sorted(year2books.keys(), reverse=True)
+    for year in years_sorted:
+        books = year2books[year]
+        with accordion_menu(f'{year}', 'h3'):
             list_books_from(books)
-    # Handle books without a series separately
-    with accordion_menu('Uten kategori', 'h3'):
-        list_books_from(no_series)
+    # Handle books without a year separately
+    with accordion_menu('Uten år', 'h3'):
+        list_books_from(no_year)
 
 
 def fetch_all(days):
