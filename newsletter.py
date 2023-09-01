@@ -315,7 +315,9 @@ def fetch_ebooks(URL):
         year2books[get_year(book)].append(book)
 
     # Handle books without a year separately
-    no_year = year2books.pop(None)
+    no_year = []
+    if None in year2books:
+        no_year = year2books.pop(None)
 
     years_sorted = sorted(year2books.keys(), reverse=True)
     for year in years_sorted:
